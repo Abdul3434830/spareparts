@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Wrench,
   Search,
@@ -36,21 +37,43 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-brand-black text-brand-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto space-y-16">
-        {/* Brand Header */}
-        <header className="text-center space-y-4 border-b border-brand-zinc-800 pb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-zinc-800 border border-brand-zinc-700 text-xs font-semibold text-brand-amber">
-            <Wrench className="w-3.5 h-3.5" />
-            Phase 1: Design System Active
+        {/* Brand Header & Quick Auth Navigation */}
+        <header className="space-y-6 border-b border-brand-zinc-800 pb-10">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-zinc-800 border border-brand-zinc-700 text-xs font-semibold text-brand-amber">
+              <Wrench className="w-3.5 h-3.5" />
+              Phase 1 & 2 Completed • Phase 3: Auth Active
+            </div>
+            <div className="flex items-center gap-3">
+              <Link href="/login">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button variant="outline" size="sm">
+                  Register
+                </Button>
+              </Link>
+              <Link href="/account">
+                <Button variant="primary" size="sm">
+                  My Account
+                </Button>
+              </Link>
+            </div>
           </div>
-          <h1 className="text-4xl sm:text-6xl font-heading font-extrabold tracking-tight">
-            CARE <span className="text-brand-amber">SPARE PARTS</span>
-          </h1>
-          <p className="text-xl sm:text-2xl font-heading font-semibold text-brand-zinc-200 uppercase tracking-widest">
-            THE RIGHT PART. THE RIGHT FIT.
-          </p>
-          <p className="text-brand-zinc-400 max-w-xl mx-auto text-sm sm:text-base">
-            Genuine, OEM and performance parts for your car. Dark, premium, mobile-first design system.
-          </p>
+
+          <div className="text-center space-y-4 pt-4">
+            <h1 className="text-4xl sm:text-6xl font-heading font-extrabold tracking-tight">
+              CARE <span className="text-brand-amber">SPARE PARTS</span>
+            </h1>
+            <p className="text-xl sm:text-2xl font-heading font-semibold text-brand-zinc-200 uppercase tracking-widest">
+              THE RIGHT PART. THE RIGHT FIT.
+            </p>
+            <p className="text-brand-zinc-400 max-w-xl mx-auto text-sm sm:text-base">
+              Genuine, OEM and performance parts for your car. Dark, premium, mobile-first design system.
+            </p>
+          </div>
         </header>
 
         {/* Brand Tokens Showcase */}

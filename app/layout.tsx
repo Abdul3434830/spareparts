@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { montserrat, inter } from "@/lib/fonts";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${montserrat.variable} ${inter.variable} dark`}>
       <body className="min-h-screen bg-brand-black text-brand-white font-body antialiased selection:bg-brand-amber/30 selection:text-brand-white">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
