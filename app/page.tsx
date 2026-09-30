@@ -1,294 +1,584 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
-  Wrench,
-  Search,
-  ShoppingCart,
+  ShieldCheck,
+  Truck,
   CheckCircle2,
-  AlertTriangle,
+  Wrench,
+  ChevronRight,
+  ArrowRight,
+  Sparkles,
   Car,
-  Package,
   Layers,
+  PhoneCall,
+  Award,
+  Zap,
 } from "lucide-react";
-import {
-  Button,
-  Badge,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  Input,
-  Select,
-  Modal,
-  Spinner,
-  Skeleton,
-  EmptyState,
-} from "@/components/ui";
+import { db } from "@/lib/db";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { VehicleSelector } from "@/components/fitment/VehicleSelector";
+import { ProductCard } from "@/components/product/ProductCard";
+import { Button } from "@/components/ui";
 
-export default function Home() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-  const [selectedMake, setSelectedMake] = useState("");
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923001234567";
+
+  // Data fetching from database
+  const [
+    categories,
+    featuredProducts,
+    bestsellers,
+    deals,
+    brands,
+    makes,
+    reviews,
+    blogPosts,
+  ] = await Promise.all([
+    db.category.findMany({
+      where: { parentId: null },
+      include: {
+        subcategories: true,
+        _count: { select: { products: true } },
+      },
+      orderBy: { sortOrder: "asc" },
+    }),
+    db.product.findMany({
+      where: { published: true, featured: true },
+      include: {
+        images: true,
+        brand: true,
+        category: true,
+        fitments: true,
+      },
+      take: 8,
+      orderBy: { createdAt: "desc" },
+    }),
+    db.product.findMany({
+      where: { published: true, bestseller: true },
+      include: {
+        images: true,
+        brand: true,
+        category: true,
+        fitments: true,
+      },
+      take: 8,
+      orderBy: { createdAt: "desc" },
+    }),
+    db.product.findMany({
+      where: { published: true, salePrice: { not: null } },
+      include: {
+        images: true,
+        brand: true,
+        category: true,
+        fitments: true,
+      },
+      take: 8,
+      orderBy: { createdAt: "desc" },
+    }),
+    db.brand.findMany({
+      take: 12,
+      orderBy: { name: "asc" },
+    }),
+    db.make.findMany({
+      take: 12,
+      orderBy: { name: "asc" },
+    }),
+    db.review.findMany({
+      where: { isVerified: true },
+      take: 3,
+      include: { user: true, product: true },
+    }),
+    db.blogPost.findMany({
+      where: { published: true },
+      take: 3,
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-brand-black text-brand-white">
-      <Header />
-      <main className="flex-1 max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-16 w-full pb-20 md:pb-12">
-        {/* Phase Progress Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-brand-zinc border border-brand-zinc-700">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-brand-amber">
-            <Wrench className="w-4 h-4" />
-            <span>Phase 1-4 Complete • Phase 5: Header, Footer, MobileNav & WhatsApp Active</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/admin">
-              <Button variant="outline" size="sm">
-                Admin Console
-              </Button>
-            </Link>
-          </div>
-        </div>
+    <div className="flex flex-col min-h-screen bg-brand-black text-brand-white selection:bg-brand-amber selection:text-brand-black">
+      <Header categories={categories} />
 
-        <div className="text-center space-y-4 pt-4">
-          <h1 className="text-4xl sm:text-6xl font-heading font-extrabold tracking-tight">
-            CARE <span className="text-brand-amber">SPARE PARTS</span>
-          </h1>
-          <p className="text-xl sm:text-2xl font-heading font-semibold text-brand-zinc-200 uppercase tracking-widest">
-            THE RIGHT PART. THE RIGHT FIT.
-          </p>
-          <p className="text-brand-zinc-400 max-w-xl mx-auto text-sm sm:text-base">
-            Genuine, OEM and performance parts for your car. Dark, premium, mobile-first design system.
-          </p>
-        </div>
+      <main className="flex-1 space-y-20 pb-20 md:pb-16">
+        {/* HERO SECTION */}
+        <section className="relative overflow-hidden pt-8 pb-16 lg:pt-16 lg:pb-24 border-b border-brand-zinc-800 bg-gradient-to-b from-brand-zinc-900/60 via-brand-black to-brand-black">
+          {/* Subtle amber gradient halo background */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-brand-amber/5 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Brand Tokens Showcase */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3">
-            <Layers className="text-brand-amber w-6 h-6" />
-            <h2 className="text-2xl font-heading font-bold text-brand-white">Brand Tokens & Colors</h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-brand-black border border-brand-zinc-700 space-y-2">
-              <div className="h-10 rounded-lg bg-[#0A0A0A] border border-brand-zinc-700" />
-              <div className="text-xs font-semibold">Black (#0A0A0A)</div>
-              <div className="text-xs text-brand-zinc-400">Primary Background</div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="text-center max-w-3xl mx-auto space-y-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-zinc-800 border border-brand-zinc-700 text-xs font-semibold text-brand-amber shadow-inner">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Pakistan&apos;s Leading Automotive Parts Specialists</span>
+              </div>
+
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-heading font-extrabold tracking-tight text-brand-white">
+                CARE <span className="text-brand-amber">SPARE PARTS</span>
+              </h1>
+
+              <p className="text-lg sm:text-2xl font-heading font-semibold text-brand-zinc-300 tracking-wider uppercase">
+                THE RIGHT PART. THE RIGHT FIT.
+              </p>
+
+              <p className="text-brand-zinc-400 text-sm sm:text-base max-w-2xl mx-auto">
+                Genuine OEM and high-performance replacement parts engineered for exact vehicle fitment, reliability, and precision stopping power.
+              </p>
             </div>
-            <div className="p-4 rounded-xl bg-brand-zinc border border-brand-zinc-700 space-y-2">
-              <div className="h-10 rounded-lg bg-brand-amber" />
-              <div className="text-xs font-semibold text-brand-amber">Amber (#F59E0B)</div>
-              <div className="text-xs text-brand-zinc-400">Accent & Action</div>
+
+            {/* Cascading Vehicle Selector Widget */}
+            <div className="mt-10 max-w-5xl mx-auto">
+              <VehicleSelector horizontal />
             </div>
-            <div className="p-4 rounded-xl bg-brand-zinc-800 border border-brand-zinc-700 space-y-2">
-              <div className="h-10 rounded-lg bg-[#18181B] border border-brand-zinc-700" />
-              <div className="text-xs font-semibold">Zinc (#18181B)</div>
-              <div className="text-xs text-brand-zinc-400">Card & Containers</div>
-            </div>
-            <div className="p-4 rounded-xl bg-brand-zinc border border-brand-zinc-700 space-y-2">
-              <div className="h-10 rounded-lg bg-[#F9FAFB]" />
-              <div className="text-xs font-semibold text-brand-white">White (#F9FAFB)</div>
-              <div className="text-xs text-brand-zinc-400">Headings & Text</div>
-            </div>
-          </div>
-        </section>
 
-        {/* Buttons Showcase */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-heading font-bold text-brand-white">Buttons</h2>
-          <div className="p-6 rounded-xl bg-brand-zinc border border-brand-zinc-700 space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <Button variant="primary">Primary Amber</Button>
-              <Button variant="secondary">Secondary Zinc</Button>
-              <Button variant="outline">Outline</Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="destructive">Destructive</Button>
-              <Button variant="link">Link Button</Button>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-brand-zinc-700">
-              <Button size="sm">Small</Button>
-              <Button size="md">Medium (Default)</Button>
-              <Button size="lg">Large</Button>
-              <Button loading>Loading...</Button>
-              <Button leftIcon={<ShoppingCart className="w-4 h-4" />}>With Left Icon</Button>
-              <Button rightIcon={<Car className="w-4 h-4" />}>With Right Icon</Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Badges Showcase */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-heading font-bold text-brand-white">Badges & Fitment Status</h2>
-          <div className="p-6 rounded-xl bg-brand-zinc border border-brand-zinc-700 flex flex-wrap gap-3">
-            <Badge variant="amber">GENUINE OEM</Badge>
-            <Badge variant="green" dot>
-              Fits Your Vehicle
-            </Badge>
-            <Badge variant="red" dot>
-              Does Not Fit
-            </Badge>
-            <Badge variant="zinc">AFTERMARKET</Badge>
-            <Badge variant="blue">IN STOCK</Badge>
-            <Badge variant="yellow">LOW STOCK</Badge>
-            <Badge variant="purple">PERFORMANCE</Badge>
-          </div>
-        </section>
-
-        {/* Cards Showcase */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-heading font-bold text-brand-white">Cards (Standard & Glassmorphism)</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card hover>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <Badge variant="amber">OEM Quality</Badge>
-                  <span className="text-xs text-brand-zinc-400">SKU: BRK-2024-X</span>
-                </div>
-                <CardTitle className="mt-2">Ceramic Brake Pads Set</CardTitle>
-                <CardDescription>Front Axle • Low Dust Formula</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-brand-zinc-300">
-                  Precision-engineered friction formulation offering exceptional stopping power and extended rotor life.
-                </p>
-                <div className="mt-4 flex items-baseline gap-2">
-                  <span className="text-2xl font-heading font-bold text-brand-amber">PKR 14,500</span>
-                  <span className="text-sm text-brand-zinc-500 line-through">PKR 17,000</span>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="secondary" size="sm">Details</Button>
-                <Button variant="primary" size="sm" leftIcon={<ShoppingCart className="w-3.5 h-3.5" />}>Add to Cart</Button>
-              </CardFooter>
-            </Card>
-
-            <Card glass hover>
-              <CardHeader>
-                <Badge variant="green" dot>Fitment Guaranteed</Badge>
-                <CardTitle className="mt-2">Vehicle Match Engine</CardTitle>
-                <CardDescription>Verified for Honda Civic 2016-2021</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm text-brand-zinc-300">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span>Exact bolt-on replacement</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span>1 Year replacement warranty</span>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full" onClick={() => setModalOpen(true)}>
-                  Open Specs Modal
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </section>
-
-        {/* Inputs & Selects */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-heading font-bold text-brand-white">Forms: Inputs & Selects</h2>
-          <div className="p-6 rounded-xl bg-brand-zinc border border-brand-zinc-700 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input
-              label="Part Number or Name"
-              placeholder="e.g. 04465-02220 or Oil Filter"
-              leftIcon={<Search className="w-4 h-4 text-brand-zinc-400" />}
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              hint="Search across genuine OEM and aftermarket catalogue"
-            />
-            <Select
-              label="Select Car Make"
-              placeholder="Choose Vehicle Make..."
-              value={selectedMake}
-              onChange={(e) => setSelectedMake(e.target.value)}
-              options={[
-                { label: "Toyota", value: "toyota" },
-                { label: "Honda", value: "honda" },
-                { label: "Suzuki", value: "suzuki" },
-                { label: "Nissan", value: "nissan" },
-                { label: "Hyundai", value: "hyundai" },
-              ]}
-            />
-          </div>
-        </section>
-
-        {/* Skeletons & Spinners */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-heading font-bold text-brand-white">Loaders & Skeletons</h2>
-          <div className="p-6 rounded-xl bg-brand-zinc border border-brand-zinc-700 grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
-            <div className="flex items-center justify-around">
-              <Spinner size="sm" color="amber" />
-              <Spinner size="md" color="amber" />
-              <Spinner size="lg" color="white" />
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          </div>
-        </section>
-
-        {/* Empty State Showcase */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-heading font-bold text-brand-white">Empty State Pattern (Rule 3 Compliant)</h2>
-          <EmptyState
-            icon={Package}
-            title="No parts found in this category"
-            description="We haven't added items in this specific category yet. Our inventory updates daily."
-            action={{
-              label: "Browse All Categories",
-              onClick: () => alert("Navigating to all categories"),
-            }}
-            secondaryAction={{
-              label: "Request a Part on WhatsApp",
-              onClick: () => alert("Opening WhatsApp inquiry"),
-            }}
-          />
-        </section>
-
-        {/* Interactive Modal */}
-        <Modal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-          title="Vehicle Fitment Confirmation"
-          description="CARE SPARE PARTS verified compatibility report"
-        >
-          <div className="space-y-4 py-2">
-            <div className="p-4 rounded-lg bg-brand-zinc-800 border border-brand-zinc-700">
-              <div className="text-xs text-brand-zinc-400">Target Vehicle</div>
-              <div className="text-lg font-heading font-bold text-brand-white mt-1">
-                Toyota Corolla (2014 - 2019) • 1.8L 2ZR-FE
+            {/* Quick Hero Feature Badges */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-brand-zinc-400">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Zero-Error Fitment Guarantee</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Express Courier Dispatch</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Direct Sourcing Available on WhatsApp</span>
               </div>
             </div>
-            <div className="flex items-start gap-3 text-sm text-brand-zinc-300">
-              <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
-              <span>Direct OEM replacement with matching bolt pattern and factory wiring plug.</span>
+          </div>
+        </section>
+
+        {/* TRUST BAR */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="p-4 sm:p-5 rounded-2xl bg-brand-zinc border border-brand-zinc-800 flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-brand-zinc-800 border border-brand-zinc-700 flex items-center justify-center text-brand-amber shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-heading font-bold text-sm text-brand-white">
+                  100% Fitment Guarantee
+                </h4>
+                <p className="text-xs text-brand-zinc-400 mt-1">
+                  Guaranteed compatibility or return with zero restocking fees.
+                </p>
+              </div>
             </div>
-            <div className="flex items-start gap-3 text-sm text-brand-zinc-300">
-              <AlertTriangle className="w-5 h-5 text-brand-amber shrink-0 mt-0.5" />
-              <span>Professional installation recommended for optimal warranty coverage.</span>
+
+            <div className="p-4 sm:p-5 rounded-2xl bg-brand-zinc border border-brand-zinc-800 flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-brand-zinc-800 border border-brand-zinc-700 flex items-center justify-center text-brand-amber shrink-0">
+                <Truck className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-heading font-bold text-sm text-brand-white">
+                  Nationwide Express
+                </h4>
+                <p className="text-xs text-brand-zinc-400 mt-1">
+                  Fast delivery across Pakistan with real-time tracking.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-5 rounded-2xl bg-brand-zinc border border-brand-zinc-800 flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-brand-zinc-800 border border-brand-zinc-700 flex items-center justify-center text-brand-amber shrink-0">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-heading font-bold text-sm text-brand-white">
+                  Genuine & OEM Quality
+                </h4>
+                <p className="text-xs text-brand-zinc-400 mt-1">
+                  Direct from certified global manufacturers and tier-1 suppliers.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-5 rounded-2xl bg-brand-zinc border border-brand-zinc-800 flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-brand-zinc-800 border border-brand-zinc-700 flex items-center justify-center text-brand-amber shrink-0">
+                <Zap className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-heading font-bold text-sm text-brand-white">
+                  Payment Flexibility
+                </h4>
+                <p className="text-xs text-brand-zinc-400 mt-1">
+                  Cash on Delivery, Direct Bank Transfer & Wholesale accounts.
+                </p>
+              </div>
             </div>
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-brand-zinc-700">
-            <Button variant="secondary" onClick={() => setModalOpen(false)}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={() => setModalOpen(false)}>
-              Confirm Fitment
-            </Button>
+        </section>
+
+        {/* SHOP BY CATEGORY */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
+                Explore Categories
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white">
+                Shop By System & Category
+              </h2>
+            </div>
+            <Link
+              href="/shop"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-amber hover:text-brand-amber-400 transition-colors"
+            >
+              <span>View All Categories</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
-        </Modal>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/shop/${cat.slug}`}
+                className="group p-5 rounded-2xl bg-brand-zinc border border-brand-zinc-800 hover:border-brand-amber/50 hover:bg-brand-zinc-800 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-brand-black border border-brand-zinc-700 group-hover:border-brand-amber/40 flex items-center justify-center text-brand-amber mb-3 transition-colors">
+                    <Layers className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-heading font-bold text-base text-brand-white group-hover:text-brand-amber transition-colors">
+                    {cat.name}
+                  </h3>
+                  <p className="text-xs text-brand-zinc-400 line-clamp-2 mt-1">
+                    {cat.description || "High-precision components & assemblies"}
+                  </p>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-brand-zinc-800/80 flex items-center justify-between text-[11px] text-brand-zinc-500">
+                  <span>{cat.subcategories.length} Subcategories</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-brand-zinc-400 group-hover:text-brand-amber group-hover:translate-x-1 transition-all" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* FEATURED PARTS */}
+        {featuredProducts.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
+                  Handpicked
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white">
+                  Featured Automotive Parts
+                </h2>
+              </div>
+              <Link
+                href="/shop?featured=true"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-amber hover:text-brand-amber-400 transition-colors"
+              >
+                <span>Browse All Featured</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* BEST SELLERS */}
+        {bestsellers.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
+                  Most Popular
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white">
+                  Best Selling Components
+                </h2>
+              </div>
+              <Link
+                href="/shop?bestseller=true"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-amber hover:text-brand-amber-400 transition-colors"
+              >
+                <span>View All Best Sellers</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {bestsellers.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ON SALE / DEALS */}
+        {deals.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <div className="text-xs font-semibold text-rose-400 uppercase tracking-wider">
+                  Special Offers
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white">
+                  Discounted Deals & Clearance
+                </h2>
+              </div>
+              <Link
+                href="/shop?sale=true"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-amber hover:text-brand-amber-400 transition-colors"
+              >
+                <span>View All Deals</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {deals.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* SHOP BY VEHICLE MAKE */}
+        {makes.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
+                  Vehicle Compatibility
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white">
+                  Shop By Car Manufacturer
+                </h2>
+              </div>
+              <Link
+                href="/shop"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-amber hover:text-brand-amber-400 transition-colors"
+              >
+                <span>All Vehicles</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+              {makes.map((m) => (
+                <Link
+                  key={m.id}
+                  href={`/shop?make=${encodeURIComponent(m.name)}`}
+                  className="p-4 rounded-xl bg-brand-zinc border border-brand-zinc-800 hover:border-brand-amber/50 hover:bg-brand-zinc-800 transition-all text-center group"
+                >
+                  <div className="w-8 h-8 rounded-full bg-brand-black border border-brand-zinc-700 mx-auto flex items-center justify-center text-brand-amber group-hover:border-brand-amber transition-colors mb-2">
+                    <Car className="w-4 h-4" />
+                  </div>
+                  <div className="font-heading font-bold text-xs sm:text-sm text-brand-white group-hover:text-brand-amber transition-colors">
+                    {m.name}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* SHOP BY BRAND */}
+        {brands.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="text-center max-w-xl mx-auto">
+              <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
+                Trusted Manufacturers
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white mt-1">
+                Featured Component Brands
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {brands.map((b) => (
+                <Link
+                  key={b.id}
+                  href={`/shop?brand=${b.slug}`}
+                  className="p-4 rounded-xl bg-brand-zinc border border-brand-zinc-800 hover:border-brand-zinc-700 flex flex-col items-center justify-center text-center transition-all group"
+                >
+                  {b.logo ? (
+                    <div className="relative w-16 h-8 mb-2">
+                      <Image
+                        src={b.logo}
+                        alt={b.name}
+                        fill
+                        className="object-contain filter grayscale group-hover:grayscale-0 transition-all"
+                      />
+                    </div>
+                  ) : (
+                    <div className="font-heading font-bold text-sm text-brand-white group-hover:text-brand-amber transition-colors">
+                      {b.name}
+                    </div>
+                  )}
+                  {b.country && (
+                    <span className="text-[10px] text-brand-zinc-500 uppercase font-mono mt-1">
+                      {b.country}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* VERIFIED REVIEWS (Only rendered if reviews exist in db) */}
+        {reviews.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="text-center max-w-xl mx-auto">
+              <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
+                Real Customer Feedback
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white mt-1">
+                Verified Buyer Reviews
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {reviews.map((r) => (
+                <div
+                  key={r.id}
+                  className="p-6 rounded-2xl bg-brand-zinc border border-brand-zinc-800 space-y-3"
+                >
+                  <div className="flex items-center gap-1 text-brand-amber text-sm">
+                    {"★".repeat(r.rating)}
+                    {"☆".repeat(5 - r.rating)}
+                  </div>
+                  {r.title && (
+                    <h4 className="font-heading font-bold text-sm text-brand-white">
+                      {r.title}
+                    </h4>
+                  )}
+                  <p className="text-xs text-brand-zinc-300 leading-relaxed italic">
+                    &ldquo;{r.comment}&rdquo;
+                  </p>
+                  <div className="pt-2 border-t border-brand-zinc-800 flex items-center justify-between text-[11px] text-brand-zinc-500">
+                    <span className="font-medium text-brand-zinc-300">
+                      {r.user?.name || "Verified Customer"}
+                    </span>
+                    <span className="text-emerald-400">Verified Purchase</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* BLOG & GUIDES (Only rendered if blog posts exist in db) */}
+        {blogPosts.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
+                  Expert Insights
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white">
+                  Technical Guides & Maintenance
+                </h2>
+              </div>
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-amber hover:text-brand-amber-400 transition-colors"
+              >
+                <span>Read All Articles</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {blogPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/blog/${post.slug}`}
+                  className="group rounded-2xl bg-brand-zinc border border-brand-zinc-800 hover:border-brand-zinc-700 overflow-hidden flex flex-col transition-all"
+                >
+                  {post.coverImage && (
+                    <div className="relative aspect-video w-full bg-brand-zinc-900">
+                      <Image
+                        src={post.coverImage}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div>
+                      <h3 className="font-heading font-bold text-base text-brand-white group-hover:text-brand-amber transition-colors">
+                        {post.title}
+                      </h3>
+                      {post.excerpt && (
+                        <p className="text-xs text-brand-zinc-400 line-clamp-2 mt-2 leading-relaxed">
+                          {post.excerpt}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-[11px] text-brand-zinc-500 flex items-center justify-between">
+                      <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                      <span className="text-brand-amber font-semibold group-hover:translate-x-1 transition-transform">
+                        Read Guide →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* HARD-TO-FIND SOURCING BANNER */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-brand-zinc to-brand-zinc-900 border border-brand-zinc-700 p-8 sm:p-12 shadow-2xl">
+            <div className="max-w-2xl space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-amber/10 border border-brand-amber/30 text-xs font-semibold text-brand-amber">
+                <Wrench className="w-3.5 h-3.5" />
+                <span>Custom Sourcing & Rare Imports</span>
+              </div>
+              <h2 className="text-2xl sm:text-4xl font-heading font-extrabold text-brand-white tracking-tight">
+                Can&apos;t find your part number?
+              </h2>
+              <p className="text-sm sm:text-base text-brand-zinc-300 leading-relaxed">
+                CARE SPARE PARTS sources rare, discontinued, and European/Japanese imports directly from overseas distribution hubs. Send us your chassis or part number for an instant quote.
+              </p>
+              <div className="pt-2 flex flex-wrap items-center gap-4">
+                <a
+                  href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                    "Hello CARE SPARE PARTS! I am looking for a hard-to-find part. Can you help me source it?"
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    leftIcon={<PhoneCall className="w-4 h-4 text-brand-black" />}
+                    className="font-heading uppercase tracking-wider text-xs font-bold"
+                  >
+                    Request on WhatsApp
+                  </Button>
+                </a>
+                <Link href="/quotes">
+                  <Button variant="outline" size="lg" className="text-xs">
+                    Submit Formal Quote Request
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
+
       <Footer />
       <MobileNav />
       <WhatsAppButton />

@@ -8,6 +8,7 @@ export interface CartItem {
   partNumber: string;
   price: number;
   image?: string;
+  brandName?: string;
   quantity: number;
   stock: number;
   fitmentConfirmed?: boolean;
