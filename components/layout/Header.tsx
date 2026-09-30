@@ -19,6 +19,7 @@ import {
 import { useCartStore } from "@/store/cart";
 import { useGarageStore } from "@/store/garage";
 import { Button } from "@/components/ui";
+import { MyGarageModal } from "@/components/fitment/MyGarageModal";
 
 interface CategoryNav {
   id: string;
@@ -39,6 +40,7 @@ export function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [garageOpen, setGarageOpen] = useState(false);
 
   const cartItemsCount = useCartStore((s) => s.getTotalItems());
   const activeVehicle = useGarageStore((s) => s.activeVehicle);
@@ -133,8 +135,9 @@ export function Header({
         {/* Right Actions: My Garage, Cart, Account */}
         <div className="flex items-center gap-3 sm:gap-4">
           {/* My Garage Button */}
-          <Link
-            href="/account/garage"
+          <button
+            type="button"
+            onClick={() => setGarageOpen(true)}
             className="hidden sm:flex items-center gap-2 p-2 rounded-lg bg-brand-zinc-800/80 hover:bg-brand-zinc-800 border border-brand-zinc-700/80 text-xs text-brand-zinc-200 transition-colors"
           >
             <div className="relative">
@@ -153,7 +156,9 @@ export function Header({
                   : "Add Vehicle"}
               </div>
             </div>
-          </Link>
+          </button>
+
+          <MyGarageModal isOpen={garageOpen} onClose={() => setGarageOpen(false)} />
 
           {/* Cart Icon & Count */}
           <Link
