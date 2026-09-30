@@ -2,26 +2,190 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── CSS Custom Properties ─────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand-black: #0a0a0a;
+  --brand-amber: #f59e0b;
+  --brand-amber-dark: #d97706;
+  --brand-amber-light: #fcd34d;
+  --brand-white: #f9fafb;
+  --brand-zinc: #18181b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Base Styles ────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-brand-zinc-700;
+    box-sizing: border-box;
+  }
+
+  html {
+    @apply scroll-smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-brand-black text-brand-white font-body;
+    background-color: #0a0a0a;
+    color: #f9fafb;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #18181b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #52525b;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #f59e0b;
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(245, 158, 11, 0.3);
+    color: #f9fafb;
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    outline: 2px solid #f59e0b;
+    outline-offset: 2px;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Component Utilities ────────────────────────────────────────────────── */
+@layer components {
+  /* Container */
+  .container-brand {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Amber gradient text */
+  .text-gradient-amber {
+    background: linear-gradient(135deg, #f59e0b, #fcd34d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glass morphism card */
+  .glass-card {
+    background: rgba(24, 24, 27, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(63, 63, 70, 0.5);
+    border-radius: 12px;
+  }
+
+  /* Amber border glow effect */
+  .amber-border {
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+
+  .amber-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #f59e0b, transparent 60%);
+    z-index: -1;
+  }
+
+  /* Shimmer loading skeleton */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #27272a 25%,
+      #3f3f46 50%,
+      #27272a 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Section heading */
+  .section-heading {
+    @apply font-heading text-3xl md:text-4xl font-bold text-brand-white;
+  }
+
+  .section-subheading {
+    @apply font-body text-brand-zinc-400 mt-2;
+  }
+
+  /* Product price */
+  .price-tag {
+    @apply font-heading font-bold text-brand-amber text-xl;
+  }
+
+  .price-original {
+    @apply text-brand-zinc-400 line-through text-sm;
+  }
+
+  /* Badge pill */
+  .badge-amber {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-brand-amber text-brand-black;
+  }
+
+  .badge-zinc {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-brand-zinc-700 text-brand-zinc-300;
+  }
+
+  .badge-green {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-green-900 text-green-300;
+  }
+
+  .badge-red {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-900 text-red-300;
+  }
+
+  /* Input base */
+  .input-base {
+    @apply w-full bg-brand-zinc-800 border border-brand-zinc-700 text-brand-white placeholder-brand-zinc-400
+           rounded-lg px-4 py-2.5 text-sm
+           focus:outline-none focus:ring-2 focus:ring-brand-amber focus:border-transparent
+           transition-all duration-200;
+  }
+
+  /* Amber divider */
+  .divider-amber {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+  }
 }
 
+/* ─── Utility Layer ─────────────────────────────────────────────────────── */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .animate-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Amber glow text */
+  .text-glow-amber {
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
   }
 }
