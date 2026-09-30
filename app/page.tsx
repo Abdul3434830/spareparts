@@ -28,6 +28,10 @@ import {
   Skeleton,
   EmptyState,
 } from "@/components/ui";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { MobileNav } from "@/components/layout/MobileNav";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -35,46 +39,35 @@ export default function Home() {
   const [selectedMake, setSelectedMake] = useState("");
 
   return (
-    <div className="min-h-screen bg-brand-black text-brand-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto space-y-16">
-        {/* Brand Header & Quick Auth Navigation */}
-        <header className="space-y-6 border-b border-brand-zinc-800 pb-10">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-zinc-800 border border-brand-zinc-700 text-xs font-semibold text-brand-amber">
-              <Wrench className="w-3.5 h-3.5" />
-              Phase 1 & 2 Completed • Phase 3: Auth Active
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button variant="outline" size="sm">
-                  Register
-                </Button>
-              </Link>
-              <Link href="/account">
-                <Button variant="primary" size="sm">
-                  My Account
-                </Button>
-              </Link>
-            </div>
+    <div className="flex flex-col min-h-screen bg-brand-black text-brand-white">
+      <Header />
+      <main className="flex-1 max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-16 w-full pb-20 md:pb-12">
+        {/* Phase Progress Banner */}
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-brand-zinc border border-brand-zinc-700">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-brand-amber">
+            <Wrench className="w-4 h-4" />
+            <span>Phase 1-4 Complete • Phase 5: Header, Footer, MobileNav & WhatsApp Active</span>
           </div>
+          <div className="flex items-center gap-2">
+            <Link href="/admin">
+              <Button variant="outline" size="sm">
+                Admin Console
+              </Button>
+            </Link>
+          </div>
+        </div>
 
-          <div className="text-center space-y-4 pt-4">
-            <h1 className="text-4xl sm:text-6xl font-heading font-extrabold tracking-tight">
-              CARE <span className="text-brand-amber">SPARE PARTS</span>
-            </h1>
-            <p className="text-xl sm:text-2xl font-heading font-semibold text-brand-zinc-200 uppercase tracking-widest">
-              THE RIGHT PART. THE RIGHT FIT.
-            </p>
-            <p className="text-brand-zinc-400 max-w-xl mx-auto text-sm sm:text-base">
-              Genuine, OEM and performance parts for your car. Dark, premium, mobile-first design system.
-            </p>
-          </div>
-        </header>
+        <div className="text-center space-y-4 pt-4">
+          <h1 className="text-4xl sm:text-6xl font-heading font-extrabold tracking-tight">
+            CARE <span className="text-brand-amber">SPARE PARTS</span>
+          </h1>
+          <p className="text-xl sm:text-2xl font-heading font-semibold text-brand-zinc-200 uppercase tracking-widest">
+            THE RIGHT PART. THE RIGHT FIT.
+          </p>
+          <p className="text-brand-zinc-400 max-w-xl mx-auto text-sm sm:text-base">
+            Genuine, OEM and performance parts for your car. Dark, premium, mobile-first design system.
+          </p>
+        </div>
 
         {/* Brand Tokens Showcase */}
         <section className="space-y-6">
@@ -295,7 +288,10 @@ export default function Home() {
             </Button>
           </div>
         </Modal>
-      </div>
+      </main>
+      <Footer />
+      <MobileNav />
+      <WhatsAppButton />
     </div>
   );
 }
