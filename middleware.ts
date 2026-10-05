@@ -1,15 +1,26 @@
-import NextAuth from "next-auth";
-import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
-import { Role } from "@prisma/client";
+import type { NextRequest } from "next/server";
+import { getToken } from "@auth/core/jwt";
 
-const { auth } = NextAuth(authConfig);
+export async function middleware(req: NextRequest) {
+  const hasSecureCookie = req.cookies.has("__Secure-authjs.session-token");
+  const activeCookieName = hasSecureCookie
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
 
-export default auth((req) => {
+  const token = await getToken({
+    req: {
+      headers: req.headers,
+    } as any,
+    secret: process.env.AUTH_SECRET,
+    cookieName: activeCookieName,
+    salt: activeCookieName,
+  });
+
+  const isLoggedIn = !!token;
+  const userRole = token?.role as string | undefined;
+
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-  const userRole = req.auth?.user?.role;
-
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isAccountRoute = nextUrl.pathname.startsWith("/account");
   const isAuthRoute =
@@ -22,7 +33,7 @@ export default auth((req) => {
       redirectUrl.searchParams.set("callbackUrl", nextUrl.pathname);
       return NextResponse.redirect(redirectUrl);
     }
-    if (userRole !== Role.ADMIN) {
+    if (userRole !== "ADMIN") {
       // Forbidden: redirect to home
       return NextResponse.redirect(new URL("/", nextUrl.origin));
     }
@@ -37,14 +48,14 @@ export default auth((req) => {
 
   // 3. Redirect authenticated users away from Login/Register
   if (isAuthRoute && isLoggedIn) {
-    if (userRole === Role.ADMIN) {
+    if (userRole === "ADMIN") {
       return NextResponse.redirect(new URL("/admin", nextUrl.origin));
     }
     return NextResponse.redirect(new URL("/account", nextUrl.origin));
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/admin/:path*", "/account/:path*", "/login", "/register"],
