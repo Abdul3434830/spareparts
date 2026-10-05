@@ -3,13 +3,18 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
 import { slugify } from "@/lib/utils";
+import { DEFAULT_BRANDS } from "@/lib/default-brands";
 
 const brandSchema = z.object({
   name: z.string().min(1, "Brand name is required"),
   slug: z.string().optional(),
-  country: z.string().optional(),
-  description: z.string().optional(),
-  logo: z.string().optional(),
+  country: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  logo: z.string().optional().nullable(),
+});
+
+const updateBrandSchema = brandSchema.extend({
+  id: z.string().min(1, "Brand ID is required"),
 });
 
 export async function GET() {
@@ -38,25 +43,90 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
+
+    // Handle Seed Request
+    if (body.action === "seed") {
+      let createdCount = 0;
+      for (const b of DEFAULT_BRANDS) {
+        const existing = await db.brand.findUnique({ where: { slug: b.slug } });
+        if (!existing) {
+          await db.brand.create({
+            data: {
+              name: b.name,
+              slug: b.slug,
+              country: b.country,
+              description: b.description,
+            },
+          });
+          createdCount++;
+        }
+      }
+      return NextResponse.json({
+        message: `Successfully seeded ${createdCount} new brands.`,
+        createdCount,
+      });
+    }
+
     const result = brandSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json({ error: result.error.flatten() }, { status: 400 });
     }
 
     const { name, country, description, logo } = result.data;
-    const slug = result.data.slug || slugify(name);
+    const baseSlug = result.data.slug || slugify(name);
+
+    // Ensure unique slug
+    let uniqueSlug = baseSlug;
+    let counter = 1;
+    while (await db.brand.findUnique({ where: { slug: uniqueSlug } })) {
+      uniqueSlug = `${baseSlug}-${counter}`;
+      counter++;
+    }
 
     const brand = await db.brand.create({
       data: {
         name,
-        slug,
-        country,
-        description,
-        logo,
+        slug: uniqueSlug,
+        country: country || null,
+        description: description || null,
+        logo: logo || null,
       },
     });
 
     return NextResponse.json(brand, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const result = updateBrandSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.flatten() }, { status: 400 });
+    }
+
+    const { id, name, country, description, logo } = result.data;
+    const slug = result.data.slug || slugify(name);
+
+    const brand = await db.brand.update({
+      where: { id },
+      data: {
+        name,
+        slug,
+        country: country || null,
+        description: description || null,
+        logo: logo || null,
+      },
+    });
+
+    return NextResponse.json(brand);
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
@@ -75,3 +145,4 @@ export async function DELETE(req: Request) {
   await db.brand.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
+

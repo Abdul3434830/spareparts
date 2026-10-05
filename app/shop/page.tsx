@@ -13,7 +13,18 @@ export const metadata = {
     "Explore our complete inventory of genuine OEM and high performance replacement auto parts. Guaranteed vehicle fitment and express nationwide delivery.",
 };
 
-export default async function ShopPage() {
+interface ShopPageProps {
+  searchParams?: {
+    category?: string;
+    subcategory?: string;
+    brand?: string;
+    type?: string;
+    sale?: string;
+    bestseller?: string;
+  };
+}
+
+export default async function ShopPage({ searchParams }: ShopPageProps) {
   const [categories, brands, products] = await Promise.all([
     db.category.findMany({
       where: { parentId: null },
@@ -47,7 +58,17 @@ export default async function ShopPage() {
           products={products}
           categories={categories}
           brands={brands}
-          title="All Spare Parts"
+          initialCategorySlug={searchParams?.category}
+          initialSubcategorySlug={searchParams?.subcategory}
+          initialBrandSlug={searchParams?.brand}
+          title={
+            searchParams?.brand
+              ? `Spare Parts by ${
+                  brands.find((b) => b.slug === searchParams.brand)?.name ||
+                  searchParams.brand.toUpperCase()
+                }`
+              : "All Spare Parts"
+          }
           description="Browse the comprehensive CARE SPARE PARTS inventory. Filter by vehicle make, model, brand, or component category."
         />
       </main>

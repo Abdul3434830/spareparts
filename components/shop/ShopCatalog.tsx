@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Filter,
@@ -53,6 +53,7 @@ interface ShopCatalogProps {
   brands: ShopBrandItem[];
   initialCategorySlug?: string;
   initialSubcategorySlug?: string;
+  initialBrandSlug?: string;
   title?: string;
   description?: string;
 }
@@ -63,6 +64,7 @@ export function ShopCatalog({
   brands,
   initialCategorySlug,
   initialSubcategorySlug,
+  initialBrandSlug,
   title = "Spare Parts Catalog",
   description = "Explore genuine OEM and aftermarket automotive replacement parts.",
 }: ShopCatalogProps) {
@@ -78,11 +80,20 @@ export function ShopCatalog({
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>(
     initialSubcategorySlug || "all"
   );
-  const [selectedBrand, setSelectedBrand] = useState<string>("all");
+  const [selectedBrand, setSelectedBrand] = useState<string>(
+    initialBrandSlug || "all"
+  );
   const [selectedType, setSelectedType] = useState<string>("all");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [priceMax, setPriceMax] = useState<number>(100000);
   const [sortBy, setSortBy] = useState<string>("newest");
+
+  // Keep brand synced with URL parameter if passed
+  useEffect(() => {
+    if (initialBrandSlug) {
+      setSelectedBrand(initialBrandSlug);
+    }
+  }, [initialBrandSlug]);
 
   // Current Category object if selected
   const activeCategoryObj = useMemo(() => {
@@ -524,6 +535,23 @@ export function ShopCatalog({
               ]}
             />
           </div>
+
+          {/* Brand Filter (Mobile) */}
+          {brands.length > 0 && (
+            <div>
+              <label className="text-xs font-semibold text-brand-zinc-300 block mb-1">
+                Brand / Manufacturer
+              </label>
+              <Select
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+                options={[
+                  { label: "All Brands", value: "all" },
+                  ...brands.map((b) => ({ label: b.name, value: b.slug })),
+                ]}
+              />
+            </div>
+          )}
 
           {/* Classification */}
           <div>

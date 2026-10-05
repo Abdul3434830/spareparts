@@ -11,7 +11,7 @@ import {
   Star,
   Car,
 } from "lucide-react";
-import { Button, Input, Select, Card, CardHeader, CardTitle, CardContent, Badge, Spinner } from "@/components/ui";
+import { Button, Input, Select, Card, CardHeader, CardTitle, CardContent, Badge, Spinner, Modal } from "@/components/ui";
 import { compressAndUploadImage } from "@/lib/client-upload";
 import { formatPrice } from "@/lib/utils";
 
@@ -102,6 +102,73 @@ export default function NewProductPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Quick Add Brand State
+  const [quickBrandModalOpen, setQuickBrandModalOpen] = useState(false);
+  const [quickBrandName, setQuickBrandName] = useState("");
+  const [quickBrandCountry, setQuickBrandCountry] = useState("");
+  const [quickBrandSubmitting, setQuickBrandSubmitting] = useState(false);
+  const [quickBrandSeeding, setQuickBrandSeeding] = useState(false);
+
+  const handleQuickAddBrand = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickBrandName.trim()) return;
+    setQuickBrandSubmitting(true);
+    try {
+      const res = await fetch("/api/admin/brands", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: quickBrandName.trim(),
+          country: quickBrandCountry.trim() || undefined,
+        }),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setBrands((prev) =>
+          [...prev, { id: created.id, name: created.name }].sort((a, b) =>
+            a.name.localeCompare(b.name)
+          )
+        );
+        setBrandId(created.id);
+        setQuickBrandName("");
+        setQuickBrandCountry("");
+        setQuickBrandModalOpen(false);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to create brand");
+      }
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setQuickBrandSubmitting(false);
+    }
+  };
+
+  const handleQuickSeedBrands = async () => {
+    setQuickBrandSeeding(true);
+    try {
+      const res = await fetch("/api/admin/brands", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "seed" }),
+      });
+      if (res.ok) {
+        const bRes = await fetch("/api/admin/brands");
+        if (bRes.ok) {
+          const loaded = await bRes.json();
+          setBrands(loaded);
+          if (loaded.length > 0 && !brandId) {
+            setBrandId(loaded[0].id);
+          }
+        }
+      }
+    } catch (err) {
+      alert((err as Error).message);
+    } finally {
+      setQuickBrandSeeding(false);
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -356,14 +423,41 @@ export default function NewProductPage() {
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Select
-                label="Brand *"
-                placeholder="Select Brand..."
-                value={brandId}
-                onChange={(e) => setBrandId(e.target.value)}
-                required
-                options={brands.map((b) => ({ label: b.name, value: b.id }))}
-              />
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold text-brand-zinc-300">
+                    Brand <span className="text-brand-amber">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setQuickBrandModalOpen(true)}
+                    className="text-[11px] font-semibold text-brand-amber hover:underline inline-flex items-center gap-1"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>Quick Add</span>
+                  </button>
+                </div>
+                <Select
+                  placeholder={brands.length === 0 ? "No brands available..." : "Select Brand..."}
+                  value={brandId}
+                  onChange={(e) => setBrandId(e.target.value)}
+                  required
+                  options={brands.map((b) => ({ label: b.name, value: b.id }))}
+                />
+                {brands.length === 0 && (
+                  <div className="mt-1.5 flex items-center justify-between text-[11px] text-amber-400/90 bg-amber-950/40 border border-amber-800/60 p-2 rounded-lg">
+                    <span>No brands yet.</span>
+                    <button
+                      type="button"
+                      onClick={handleQuickSeedBrands}
+                      disabled={quickBrandSeeding}
+                      className="font-semibold underline hover:text-white"
+                    >
+                      {quickBrandSeeding ? "Loading..." : "Seed Top 22"}
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <Select
                 label="Main Category *"
@@ -840,6 +934,55 @@ export default function NewProductPage() {
           </Button>
         </div>
       </form>
+
+      {/* Quick Add Brand Modal */}
+      {quickBrandModalOpen && (
+        <Modal
+          isOpen={true}
+          onClose={() => setQuickBrandModalOpen(false)}
+          title="Quick Add Part Brand"
+          size="sm"
+        >
+          <form onSubmit={handleQuickAddBrand} className="space-y-4">
+            <Input
+              label="Brand Name *"
+              placeholder="e.g. Bosch, Brembo, Denso, NGK"
+              value={quickBrandName}
+              onChange={(e) => setQuickBrandName(e.target.value)}
+              className="text-xs"
+              autoFocus
+              required
+            />
+            <Input
+              label="Country of Origin"
+              placeholder="e.g. Germany, Japan, Italy, USA"
+              value={quickBrandCountry}
+              onChange={(e) => setQuickBrandCountry(e.target.value)}
+              className="text-xs"
+            />
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-brand-zinc-700">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setQuickBrandModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                loading={quickBrandSubmitting}
+                leftIcon={<Plus className="w-3.5 h-3.5" />}
+              >
+                Save & Select
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }
+

@@ -392,13 +392,22 @@ export default async function HomePage() {
         {/* SHOP BY BRAND */}
         {brands.length > 0 && (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-            <div className="text-center max-w-xl mx-auto">
-              <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
-                Trusted Manufacturers
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div>
+                <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
+                  Trusted Manufacturers
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white">
+                  Featured Component Brands
+                </h2>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white mt-1">
-                Featured Component Brands
-              </h2>
+              <Link
+                href="/brands"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-amber hover:text-brand-amber-400 transition-colors"
+              >
+                <span>View All Brands</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">

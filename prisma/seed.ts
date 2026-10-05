@@ -234,7 +234,28 @@ async function main() {
   });
 
   console.log(`✅ Admin user seeded (ID: ${adminUser.id}, Email: ${adminUser.email})`);
-  console.log("🎉 Idempotent seed completed with NO fake data.");
+
+  // 3. Seed Top Component Brands
+  console.log("🏷️ Seeding Top Component Brands...");
+  const { DEFAULT_BRANDS } = await import("../lib/default-brands");
+  for (const b of DEFAULT_BRANDS) {
+    await prisma.brand.upsert({
+      where: { slug: b.slug },
+      update: {
+        name: b.name,
+        country: b.country,
+        description: b.description,
+      },
+      create: {
+        name: b.name,
+        slug: b.slug,
+        country: b.country,
+        description: b.description,
+      },
+    });
+  }
+  console.log(`✅ ${DEFAULT_BRANDS.length} Brands seeded successfully.`);
+  console.log("🎉 Idempotent seed completed.");
 }
 
 main()
