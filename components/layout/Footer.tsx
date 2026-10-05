@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ShieldCheck, Truck, RefreshCw, MessageSquare, Phone, Mail } from "lucide-react";
+import { PAYMENT_CONFIG } from "@/lib/payment-methods";
 
 export function Footer() {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923001234567";
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || PAYMENT_CONFIG.whatsappNumber;
 
   return (
     <footer className="bg-brand-black border-t border-brand-zinc-800 text-brand-zinc-400 text-xs">
@@ -85,13 +86,15 @@ export function Footer() {
           <div className="pt-2 space-y-1.5 text-xs text-brand-zinc-400">
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-brand-amber" />
-              <a href={`https://wa.me/${whatsappNumber}`} target="_blank" className="hover:text-brand-white">
-                +{whatsappNumber} (Direct WhatsApp)
+              <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="hover:text-brand-white">
+                +{whatsappNumber} (03188303434)
               </a>
             </div>
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-brand-amber" />
-              <span>orders@carespareparts.com</span>
+              <a href={`mailto:${PAYMENT_CONFIG.supportEmail}`} className="hover:text-brand-white">
+                {PAYMENT_CONFIG.supportEmail}
+              </a>
             </div>
           </div>
         </div>
@@ -211,7 +214,7 @@ export function Footer() {
             </div>
 
             <div className="flex items-center gap-4">
-              <span>Accepted Payments: Cash on Delivery • Direct Bank Transfer</span>
+              <span>Accepted Payments: Meezan Bank Transfer (IBFT) • Easypaisa • JazzCash</span>
             </div>
           </div>
         </div>

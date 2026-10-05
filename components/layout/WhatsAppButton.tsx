@@ -2,10 +2,11 @@
 
 import { useGarageStore } from "@/store/garage";
 import { MessageCircle } from "lucide-react";
+import { PAYMENT_CONFIG } from "@/lib/payment-methods";
 
 export function WhatsAppButton() {
   const activeVehicle = useGarageStore((s) => s.activeVehicle);
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923001234567";
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || PAYMENT_CONFIG.whatsappNumber;
 
   const message = activeVehicle
     ? `Hello CARE SPARE PARTS, I need help finding genuine or OEM parts for my ${activeVehicle.year} ${activeVehicle.make} ${activeVehicle.model}${activeVehicle.engine ? ` (${activeVehicle.engine})` : ""}.`

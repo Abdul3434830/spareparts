@@ -20,6 +20,9 @@ export async function POST(request: Request) {
       notes,
       vin,
       paymentMethod,
+      transactionId,
+      senderAccount,
+      bankTransferProofUrl,
       items,
       subtotal,
       shippingCost,
@@ -33,13 +36,26 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!transactionId || !transactionId.toString().trim()) {
+      return NextResponse.json(
+        { error: "Payment Transaction ID / Reference Number is required to place your order." },
+        { status: 400 }
+      );
+    }
+
     // Generate unique order number: CSP-YYYYMMDD-XXXX
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const randSuffix = Math.floor(1000 + Math.random() * 9000);
     const orderNumber = `CSP-${dateStr}-${randSuffix}`;
 
-    const parsedPaymentMethod =
-      paymentMethod === "BANK_TRANSFER" ? "BANK_TRANSFER" : "CASH_ON_DELIVERY";
+    let parsedPaymentMethod: "BANK_TRANSFER" | "JAZZ_CASH" | "EASYPAISA" = "BANK_TRANSFER";
+    if (paymentMethod === "JAZZ_CASH") {
+      parsedPaymentMethod = "JAZZ_CASH";
+    } else if (paymentMethod === "EASYPAISA") {
+      parsedPaymentMethod = "EASYPAISA";
+    } else {
+      parsedPaymentMethod = "BANK_TRANSFER";
+    }
 
     // Create order with order items in a transaction
     const order = await db.$transaction(async (tx) => {
@@ -61,6 +77,9 @@ export async function POST(request: Request) {
           status: "PENDING",
           paymentStatus: "PENDING",
           paymentMethod: parsedPaymentMethod,
+          transactionId: transactionId ? String(transactionId).trim() : null,
+          senderAccount: senderAccount ? String(senderAccount).trim() : null,
+          bankTransferProofUrl: bankTransferProofUrl || null,
           subtotal: Number(subtotal),
           shippingFee: Number(shippingCost),
           discount: 0,
@@ -89,7 +108,7 @@ export async function POST(request: Request) {
           statusHistory: {
             create: {
               status: "PENDING",
-              note: "Order placed by customer via web store",
+              note: `Order placed via ${parsedPaymentMethod}. TID: ${transactionId ? String(transactionId).trim() : "None"}`,
             },
           },
         },

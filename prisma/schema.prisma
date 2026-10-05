@@ -40,8 +40,10 @@ enum OrderStatus {
 }
 
 enum PaymentMethod {
-  CASH_ON_DELIVERY
   BANK_TRANSFER
+  JAZZ_CASH
+  EASYPAISA
+  CASH_ON_DELIVERY
 }
 
 enum PaymentStatus {
@@ -278,7 +280,7 @@ model Order {
   userId                String?
   user                  User?                @relation(fields: [userId], references: [id])
   status                OrderStatus          @default(PENDING)
-  paymentMethod         PaymentMethod        @default(CASH_ON_DELIVERY)
+  paymentMethod         PaymentMethod        @default(BANK_TRANSFER)
   paymentStatus         PaymentStatus        @default(PENDING)
   fitmentConfirmed      Boolean              @default(false)
   subtotal              Float
@@ -286,6 +288,8 @@ model Order {
   discount              Float                @default(0)
   total                 Float
   trackingNumber        String?
+  transactionId         String?              // Payment transaction / reference ID (TID)
+  senderAccount         String?              // Sender's mobile number or bank account name
   bankTransferProofUrl  String?              // Stored in Vercel Blob
   customerName          String
   customerEmail         String

@@ -5,18 +5,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
-  Banknote,
   Building2,
   Lock,
   ChevronRight,
   Car,
   AlertCircle,
+  Smartphone,
+  Copy,
+  Check,
+  MessageSquare,
+  Wallet,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { useGarageStore } from "@/store/garage";
 import { Button, Input, Select } from "@/components/ui";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { PAYMENT_CONFIG } from "@/lib/payment-methods";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -39,7 +44,10 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState("");
   const [requireVinCheck, setRequireVinCheck] = useState(false);
   const [vinNumber, setVinNumber] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"COD" | "BANK_TRANSFER">("COD");
+  const [paymentMethod, setPaymentMethod] = useState<"BANK_TRANSFER" | "EASYPAISA" | "JAZZ_CASH">("BANK_TRANSFER");
+  const [transactionId, setTransactionId] = useState("");
+  const [senderAccount, setSenderAccount] = useState("");
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -48,6 +56,12 @@ export default function CheckoutPage() {
       if (session.user.email) setEmail(session.user.email);
     }
   }, [session]);
+
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
 
   const subtotal = getSubtotal();
   const freeShippingThreshold = 15000;
@@ -87,6 +101,11 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!transactionId.trim()) {
+      setErrorMsg("Please enter the Payment Transaction ID / Reference Number (TID) from your bank/wallet receipt.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const payload = {
@@ -100,6 +119,8 @@ export default function CheckoutPage() {
         notes: notes.trim(),
         vin: requireVinCheck ? vinNumber.trim().toUpperCase() : undefined,
         paymentMethod,
+        transactionId: transactionId.trim(),
+        senderAccount: senderAccount.trim() || undefined,
         items,
         subtotal,
         shippingCost,
@@ -119,7 +140,11 @@ export default function CheckoutPage() {
 
       const orderData = await res.json();
       clearCart();
-      router.push(`/checkout/success?orderNumber=${orderData.orderNumber}`);
+      router.push(
+        `/checkout/success?orderNumber=${encodeURIComponent(orderData.orderNumber)}&method=${encodeURIComponent(
+          paymentMethod
+        )}&tid=${encodeURIComponent(transactionId.trim())}&total=${total}`
+      );
     } catch (err: unknown) {
       console.error("Order error:", err);
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong placing your order.");
@@ -320,76 +345,268 @@ export default function CheckoutPage() {
             </div>
 
             {/* Step 4: Payment Method */}
-            <div className="p-6 rounded-3xl bg-brand-zinc border border-brand-zinc-800 space-y-4">
-              <div className="flex items-center gap-2 font-heading font-bold text-base text-brand-white pb-3 border-b border-brand-zinc-800">
-                <span className="w-6 h-6 rounded-full bg-brand-amber text-brand-black text-xs flex items-center justify-center font-bold">
-                  3
+            <div className="p-6 rounded-3xl bg-brand-zinc border border-brand-zinc-800 space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-brand-zinc-800">
+                <div className="flex items-center gap-2 font-heading font-bold text-base text-brand-white">
+                  <span className="w-6 h-6 rounded-full bg-brand-amber text-brand-black text-xs flex items-center justify-center font-bold">
+                    3
+                  </span>
+                  <span>Select Payment Method</span>
+                </div>
+                <span className="text-[11px] text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">
+                  Pre-Payment Only
                 </span>
-                <span>Payment Method</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("COD")}
-                  className={`p-4 rounded-2xl border text-left transition-all space-y-2 ${
-                    paymentMethod === "COD"
-                      ? "bg-brand-amber/10 border-brand-amber text-brand-white shadow-lg shadow-brand-amber/5"
-                      : "bg-brand-zinc-900 border-brand-zinc-800 text-brand-zinc-400 hover:border-brand-zinc-700"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <Banknote className="w-6 h-6 text-brand-amber" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-                      Most Popular
-                    </span>
-                  </div>
-                  <div className="font-heading font-bold text-sm text-brand-white">
-                    Cash on Delivery (COD)
-                  </div>
-                  <p className="text-xs text-brand-zinc-400 leading-snug">
-                    Pay safely in cash to courier agent upon inspection and parcel delivery.
-                  </p>
-                </button>
-
+              {/* 3 Payment Methods Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Bank Transfer (Meezan) */}
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("BANK_TRANSFER")}
                   className={`p-4 rounded-2xl border text-left transition-all space-y-2 ${
                     paymentMethod === "BANK_TRANSFER"
-                      ? "bg-brand-amber/10 border-brand-amber text-brand-white shadow-lg shadow-brand-amber/5"
+                      ? "bg-brand-amber/10 border-brand-amber text-brand-white shadow-lg shadow-brand-amber/5 ring-1 ring-brand-amber"
                       : "bg-brand-zinc-900 border-brand-zinc-800 text-brand-zinc-400 hover:border-brand-zinc-700"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <Building2 className="w-6 h-6 text-brand-amber" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-zinc-400">
-                      Direct IBFT
+                    <Building2 className={`w-5 h-5 ${paymentMethod === "BANK_TRANSFER" ? "text-brand-amber" : "text-brand-zinc-400"}`} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-amber">
+                      Meezan Bank
                     </span>
                   </div>
                   <div className="font-heading font-bold text-sm text-brand-white">
-                    Direct Bank Transfer
+                    Bank Transfer
                   </div>
-                  <p className="text-xs text-brand-zinc-400 leading-snug">
-                    Transfer directly to our Meezan Bank / HBL corporate accounts for priority dispatch.
+                  <p className="text-[11px] text-brand-zinc-400 leading-snug">
+                    Raast / IBFT directly to Meezan Bank.
+                  </p>
+                </button>
+
+                {/* Easypaisa */}
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("EASYPAISA")}
+                  className={`p-4 rounded-2xl border text-left transition-all space-y-2 ${
+                    paymentMethod === "EASYPAISA"
+                      ? "bg-brand-amber/10 border-brand-amber text-brand-white shadow-lg shadow-brand-amber/5 ring-1 ring-brand-amber"
+                      : "bg-brand-zinc-900 border-brand-zinc-800 text-brand-zinc-400 hover:border-brand-zinc-700"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <Smartphone className={`w-5 h-5 ${paymentMethod === "EASYPAISA" ? "text-brand-amber" : "text-brand-zinc-400"}`} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                      Instant
+                    </span>
+                  </div>
+                  <div className="font-heading font-bold text-sm text-brand-white">
+                    Easypaisa
+                  </div>
+                  <p className="text-[11px] text-brand-zinc-400 leading-snug">
+                    Send to 03188303434 via Easypaisa App.
+                  </p>
+                </button>
+
+                {/* JazzCash */}
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("JAZZ_CASH")}
+                  className={`p-4 rounded-2xl border text-left transition-all space-y-2 ${
+                    paymentMethod === "JAZZ_CASH"
+                      ? "bg-brand-amber/10 border-brand-amber text-brand-white shadow-lg shadow-brand-amber/5 ring-1 ring-brand-amber"
+                      : "bg-brand-zinc-900 border-brand-zinc-800 text-brand-zinc-400 hover:border-brand-zinc-700"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <Wallet className={`w-5 h-5 ${paymentMethod === "JAZZ_CASH" ? "text-brand-amber" : "text-brand-zinc-400"}`} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                      Instant
+                    </span>
+                  </div>
+                  <div className="font-heading font-bold text-sm text-brand-white">
+                    JazzCash
+                  </div>
+                  <p className="text-[11px] text-brand-zinc-400 leading-snug">
+                    Send to 03210803434 via JazzCash App.
                   </p>
                 </button>
               </div>
 
-              {paymentMethod === "BANK_TRANSFER" && (
-                <div className="p-4 rounded-2xl bg-brand-black border border-brand-zinc-700 text-xs space-y-2">
-                  <div className="font-semibold text-brand-amber">Bank Account Details:</div>
-                  <div className="text-brand-zinc-300">
-                    <div>Bank: <strong>Meezan Bank Limited</strong></div>
-                    <div>Account Title: <strong>CARE SPARE PARTS SMC-PVT LTD</strong></div>
-                    <div>Account Number: <strong>02010108923451</strong></div>
-                    <div>IBAN: <strong>PK65MEZN0002010108923451</strong></div>
-                  </div>
-                  <p className="text-[11px] text-brand-zinc-500 pt-1">
-                    Please share your payment transaction screenshot on WhatsApp after placing order.
-                  </p>
+              {/* Dynamic Account Details Card */}
+              <div className="p-4 rounded-2xl bg-brand-black border border-brand-zinc-800 space-y-3">
+                <div className="flex items-center justify-between text-xs pb-2 border-b border-brand-zinc-800/80">
+                  <span className="font-semibold text-brand-white flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    Account Details to Transfer (PKR {total.toLocaleString()})
+                  </span>
+                  <span className="text-brand-zinc-400 text-[11px]">Click to copy</span>
                 </div>
-              )}
+
+                {paymentMethod === "BANK_TRANSFER" && (
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-brand-zinc-900/60 border border-brand-zinc-800">
+                      <div>
+                        <div className="text-[10px] text-brand-zinc-400 uppercase font-semibold">Bank Name</div>
+                        <div className="font-bold text-brand-white">{PAYMENT_CONFIG.bank.bankName}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-brand-zinc-900/60 border border-brand-zinc-800">
+                      <div>
+                        <div className="text-[10px] text-brand-zinc-400 uppercase font-semibold">Account Title</div>
+                        <div className="font-bold text-brand-amber">{PAYMENT_CONFIG.bank.accountTitle}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(PAYMENT_CONFIG.bank.accountTitle, "bank_title")}
+                        className="p-1.5 rounded-lg bg-brand-zinc-800 hover:bg-brand-zinc-700 text-brand-zinc-300 transition-colors flex items-center gap-1 text-[11px]"
+                      >
+                        {copiedKey === "bank_title" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedKey === "bank_title" ? "Copied!" : "Copy"}</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-brand-zinc-900/60 border border-brand-zinc-800">
+                      <div>
+                        <div className="text-[10px] text-brand-zinc-400 uppercase font-semibold">Account Number</div>
+                        <div className="font-mono font-bold text-brand-white tracking-wide">{PAYMENT_CONFIG.bank.accountNumber}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(PAYMENT_CONFIG.bank.accountNumber, "bank_acc")}
+                        className="p-1.5 rounded-lg bg-brand-zinc-800 hover:bg-brand-zinc-700 text-brand-zinc-300 transition-colors flex items-center gap-1 text-[11px]"
+                      >
+                        {copiedKey === "bank_acc" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedKey === "bank_acc" ? "Copied!" : "Copy"}</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-brand-zinc-900/60 border border-brand-zinc-800">
+                      <div>
+                        <div className="text-[10px] text-brand-zinc-400 uppercase font-semibold">IBAN</div>
+                        <div className="font-mono font-bold text-brand-white text-[11px] tracking-wide">{PAYMENT_CONFIG.bank.iban}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(PAYMENT_CONFIG.bank.iban, "bank_iban")}
+                        className="p-1.5 rounded-lg bg-brand-zinc-800 hover:bg-brand-zinc-700 text-brand-zinc-300 transition-colors flex items-center gap-1 text-[11px]"
+                      >
+                        {copiedKey === "bank_iban" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedKey === "bank_iban" ? "Copied!" : "Copy"}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {paymentMethod === "EASYPAISA" && (
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-brand-zinc-900/60 border border-brand-zinc-800">
+                      <div>
+                        <div className="text-[10px] text-brand-zinc-400 uppercase font-semibold">Account Title</div>
+                        <div className="font-bold text-brand-amber">{PAYMENT_CONFIG.easypaisa.accountTitle}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(PAYMENT_CONFIG.easypaisa.accountTitle, "ep_title")}
+                        className="p-1.5 rounded-lg bg-brand-zinc-800 hover:bg-brand-zinc-700 text-brand-zinc-300 transition-colors flex items-center gap-1 text-[11px]"
+                      >
+                        {copiedKey === "ep_title" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedKey === "ep_title" ? "Copied!" : "Copy"}</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-brand-zinc-900/60 border border-brand-zinc-800">
+                      <div>
+                        <div className="text-[10px] text-brand-zinc-400 uppercase font-semibold">Easypaisa Mobile Number</div>
+                        <div className="font-mono font-bold text-lg text-emerald-400 tracking-wider">{PAYMENT_CONFIG.easypaisa.mobileNumber}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(PAYMENT_CONFIG.easypaisa.mobileNumber, "ep_num")}
+                        className="p-1.5 rounded-lg bg-brand-zinc-800 hover:bg-brand-zinc-700 text-brand-zinc-300 transition-colors flex items-center gap-1 text-[11px]"
+                      >
+                        {copiedKey === "ep_num" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedKey === "ep_num" ? "Copied!" : "Copy"}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {paymentMethod === "JAZZ_CASH" && (
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-brand-zinc-900/60 border border-brand-zinc-800">
+                      <div>
+                        <div className="text-[10px] text-brand-zinc-400 uppercase font-semibold">Account Title</div>
+                        <div className="font-bold text-brand-amber">{PAYMENT_CONFIG.jazzcash.accountTitle}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(PAYMENT_CONFIG.jazzcash.accountTitle, "jc_title")}
+                        className="p-1.5 rounded-lg bg-brand-zinc-800 hover:bg-brand-zinc-700 text-brand-zinc-300 transition-colors flex items-center gap-1 text-[11px]"
+                      >
+                        {copiedKey === "jc_title" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedKey === "jc_title" ? "Copied!" : "Copy"}</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-brand-zinc-900/60 border border-brand-zinc-800">
+                      <div>
+                        <div className="text-[10px] text-brand-zinc-400 uppercase font-semibold">JazzCash Mobile Number</div>
+                        <div className="font-mono font-bold text-lg text-amber-400 tracking-wider">{PAYMENT_CONFIG.jazzcash.mobileNumber}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(PAYMENT_CONFIG.jazzcash.mobileNumber, "jc_num")}
+                        className="p-1.5 rounded-lg bg-brand-zinc-800 hover:bg-brand-zinc-700 text-brand-zinc-300 transition-colors flex items-center gap-1 text-[11px]"
+                      >
+                        {copiedKey === "jc_num" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedKey === "jc_num" ? "Copied!" : "Copy"}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Transaction ID & Sender Verification Inputs */}
+              <div className="p-4 rounded-2xl bg-brand-zinc-900/90 border border-brand-amber/30 space-y-3">
+                <div className="text-xs font-semibold text-brand-white flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-brand-amber" />
+                  Enter Payment Confirmation Details
+                </div>
+
+                <div className="space-y-3">
+                  <Input
+                    label="Transaction ID / Reference Number (TID) *"
+                    placeholder="e.g. 11370110610915 or 8291039472"
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                    required
+                    className="font-mono"
+                  />
+
+                  <Input
+                    label="Sender Name or Mobile Number (Optional)"
+                    placeholder="e.g. 0300 1234567 or Tariq Mehmood"
+                    value={senderAccount}
+                    onChange={(e) => setSenderAccount(e.target.value)}
+                  />
+                </div>
+
+                {/* WhatsApp Notice Banner */}
+                <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2.5">
+                  <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block text-emerald-200">
+                      Send Payment Screenshot on WhatsApp
+                    </span>
+                    <span className="text-[11px] text-emerald-300/80 leading-relaxed block mt-0.5">
+                      After placing order, please send your payment receipt / screenshot on WhatsApp to{" "}
+                      <strong className="text-emerald-200 font-mono">03188303434</strong> for immediate admin confirmation & dispatch.
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

@@ -12,6 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Button, Badge } from "@/components/ui";
+import { PAYMENT_CONFIG } from "@/lib/payment-methods";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   }
 
   const shippingAddr = (order.shippingAddress as Record<string, string>) || {};
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923001234567";
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || PAYMENT_CONFIG.whatsappNumber;
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `Hello CARE SPARE PARTS! 🚗\nI am inquiring about order #${order.orderNumber}.\nCould you provide an update on delivery status?`
   )}`;
@@ -187,13 +188,52 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                   {shippingAddr.postalCode}
                 </span>
               </div>
-              <div className="pt-2 border-t border-brand-zinc-800">
-                <span className="text-brand-zinc-500 block">Payment Method:</span>
-                <strong className="text-brand-white">
+              <div className="pt-2 border-t border-brand-zinc-800 space-y-1.5">
+                <span className="text-brand-zinc-500 block">Payment Details:</span>
+                <div className="font-semibold text-brand-white">
                   {order.paymentMethod === "BANK_TRANSFER"
-                    ? "Direct Bank Transfer"
-                    : "Cash on Delivery (COD)"}
-                </strong>
+                    ? "Meezan Bank Transfer (IBFT)"
+                    : order.paymentMethod === "EASYPAISA"
+                    ? "Easypaisa"
+                    : order.paymentMethod === "JAZZ_CASH"
+                    ? "JazzCash"
+                    : order.paymentMethod.replace(/_/g, " ")}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-brand-zinc-400">Payment Status:</span>
+                  <Badge
+                    size="sm"
+                    variant={
+                      order.paymentStatus === "PAID"
+                        ? "green"
+                        : order.paymentStatus === "FAILED"
+                        ? "red"
+                        : "amber"
+                    }
+                    dot
+                  >
+                    {order.paymentStatus}
+                  </Badge>
+                </div>
+                {order.transactionId && (
+                  <div className="text-[11px] text-brand-zinc-400">
+                    TID: <span className="font-mono text-emerald-400 font-semibold">{order.transactionId}</span>
+                  </div>
+                )}
+                {order.paymentStatus !== "PAID" && (
+                  <div className="pt-2">
+                    <a
+                      href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                        `Assalam-o-Alaikum! 🚗\nHere is my payment screenshot for Order #${order.orderNumber} (TID: ${order.transactionId || "N/A"}). Please confirm.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-center py-2 px-3 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-black font-heading font-bold text-xs transition-colors"
+                    >
+                      Send Payment Screenshot on WhatsApp
+                    </a>
+                  </div>
+                )}
               </div>
               {order.notes && (
                 <div className="pt-2 border-t border-brand-zinc-800">

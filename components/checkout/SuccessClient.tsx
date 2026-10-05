@@ -9,16 +9,38 @@ import {
   MessageSquare,
   Home,
   FileText,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui";
+import { PAYMENT_CONFIG } from "@/lib/payment-methods";
 
 export function SuccessClient() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("orderNumber") || "CSP-CONFIRMED";
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923001234567";
+  const method = searchParams.get("method") || "BANK_TRANSFER";
+  const tid = searchParams.get("tid") || "";
+  const total = searchParams.get("total") || "";
+
+  const whatsappNumber = PAYMENT_CONFIG.whatsappNumber; // 923188303434
+
+  const methodName =
+    method === "BANK_TRANSFER"
+      ? "Meezan Bank Transfer"
+      : method === "EASYPAISA"
+      ? "Easypaisa"
+      : method === "JAZZ_CASH"
+      ? "JazzCash"
+      : method;
+
+  const whatsappMessage = `Assalam-o-Alaikum CARE SPARE PARTS! 🚗
+I have placed Order #${orderNumber}${total ? ` for PKR ${Number(total).toLocaleString()}` : ""}.
+Payment Method: ${methodName}
+Transaction ID: ${tid || "Sent in receipt"}
+
+I am attaching my payment screenshot here. Please verify payment and confirm my parcel dispatch. Thank you!`;
 
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Hello CARE SPARE PARTS! 🚗\nI just placed order #${orderNumber} on your website.\nCould you please confirm receipt and dispatch schedule? Thank you!`
+    whatsappMessage
   )}`;
 
   return (
@@ -30,16 +52,44 @@ export function SuccessClient() {
 
       <div className="space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-zinc-800 border border-brand-zinc-700 text-xs font-semibold text-brand-amber">
-          <span>Order Successfully Placed</span>
+          <span>Order Placed & Awaiting Verification</span>
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-heading font-extrabold text-brand-white">
-          Thank you for choosing CARE SPARE PARTS!
+          Thank you for your order!
         </h1>
 
         <p className="text-sm text-brand-zinc-400 max-w-md mx-auto">
-          Your order has been recorded into our fulfillment system. Our logistics team will call or message to confirm courier booking.
+          Your order has been recorded into our system. Once our team verifies your payment transaction ID, your order will be confirmed and booked for courier dispatch.
         </p>
+      </div>
+
+      {/* WhatsApp Screenshot Callout - Most Important Step */}
+      <div className="p-6 rounded-3xl bg-gradient-to-b from-emerald-950/60 to-brand-zinc border-2 border-emerald-500/50 space-y-4 text-left shadow-2xl">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-black flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
+            <MessageSquare className="w-5 h-5 fill-current" />
+          </div>
+          <div className="space-y-1">
+            <div className="font-heading font-extrabold text-base text-white">
+              Action Required: Send Screenshot on WhatsApp
+            </div>
+            <p className="text-xs text-brand-zinc-300 leading-relaxed">
+              Please click the button below to send your payment screenshot & Transaction ID (TID) to our official WhatsApp (
+              <strong className="text-emerald-400 font-mono">03188303434</strong>). Our admin will verify receipt and mark your order as <span className="text-emerald-400 font-bold">Confirmed</span>.
+            </p>
+          </div>
+        </div>
+
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="block">
+          <button
+            type="button"
+            className="w-full py-3.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-black font-heading font-bold text-sm tracking-wide transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2"
+          >
+            <MessageSquare className="w-4 h-4 fill-current" />
+            <span>Send Payment Screenshot on WhatsApp (03188303434)</span>
+          </button>
+        </a>
       </div>
 
       {/* Order Reference Box */}
@@ -53,25 +103,39 @@ export function SuccessClient() {
               {orderNumber}
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded-full bg-amber-950/60 border border-amber-500/40 text-amber-400 text-xs font-semibold self-start sm:self-auto">
-            Processing Dispatch
+          <span className="px-2.5 py-1 rounded-full bg-amber-950/60 border border-amber-500/40 text-amber-400 text-xs font-semibold self-start sm:self-auto flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5" />
+            <span>Awaiting Payment Confirmation</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        {/* Payment Summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-brand-black/60 p-3.5 rounded-2xl border border-brand-zinc-800/80">
+          <div>
+            <span className="text-brand-zinc-400 text-[11px] block">Payment Method</span>
+            <span className="font-semibold text-brand-white font-heading">{methodName}</span>
+          </div>
+
+          <div>
+            <span className="text-brand-zinc-400 text-[11px] block">Recorded Transaction ID (TID)</span>
+            <span className="font-mono font-bold text-emerald-400">{tid || "Under Verification"}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
           <div className="flex items-start gap-2.5">
             <Truck className="w-4 h-4 text-brand-amber shrink-0 mt-0.5" />
             <div>
-              <div className="font-semibold text-brand-white">Estimated Delivery</div>
-              <div className="text-brand-zinc-400">2 to 3 Business Days via TCS / Leopard</div>
+              <div className="font-semibold text-brand-white">Fast Courier Dispatch</div>
+              <div className="text-brand-zinc-400">TCS / Leopards courier booked upon confirmation</div>
             </div>
           </div>
 
           <div className="flex items-start gap-2.5">
             <Package className="w-4 h-4 text-brand-amber shrink-0 mt-0.5" />
             <div>
-              <div className="font-semibold text-brand-white">Inspection at Delivery</div>
-              <div className="text-brand-zinc-400">Inspect parcel and verify part number</div>
+              <div className="font-semibold text-brand-white">Fitment Protection</div>
+              <div className="text-brand-zinc-400">Guaranteed part compatibility with your car</div>
             </div>
           </div>
         </div>
@@ -79,17 +143,6 @@ export function SuccessClient() {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-          <Button
-            variant="primary"
-            size="lg"
-            className="w-full sm:w-auto font-heading uppercase tracking-wider text-xs font-bold"
-            leftIcon={<MessageSquare className="w-4 h-4 text-brand-black" />}
-          >
-            Confirm on WhatsApp
-          </Button>
-        </a>
-
         <Link href="/account/orders" className="w-full sm:w-auto">
           <Button
             variant="outline"
@@ -108,7 +161,7 @@ export function SuccessClient() {
             className="w-full sm:w-auto text-xs"
             leftIcon={<Home className="w-4 h-4" />}
           >
-            Home
+            Continue Shopping
           </Button>
         </Link>
       </div>

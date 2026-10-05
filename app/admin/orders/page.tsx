@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  ShoppingBag,
   Eye,
   RefreshCw,
   Receipt,
@@ -10,6 +9,14 @@ import {
   Mail,
   MapPin,
   ExternalLink,
+  CheckCircle,
+  XCircle,
+  Copy,
+  Check,
+  MessageSquare,
+  Building2,
+  Smartphone,
+  Wallet,
 } from "lucide-react";
 import { Button, Input, Select, Card, CardContent, Badge, Spinner, Modal } from "@/components/ui";
 import { formatPrice } from "@/lib/utils";
@@ -38,13 +45,17 @@ interface AdminOrder {
   customerPhone: string;
   shippingAddress: {
     streetAddress?: string;
+    street?: string;
     city?: string;
     state?: string;
+    province?: string;
     postalCode?: string;
   };
   status: string;
   paymentMethod: string;
   paymentStatus: string;
+  transactionId?: string | null;
+  senderAccount?: string | null;
   fitmentConfirmed: boolean;
   subtotal: number;
   shippingFee: number;
@@ -66,9 +77,11 @@ export default function AdminOrdersPage() {
 
   // Status Update State
   const [newStatus, setNewStatus] = useState("");
+  const [newPaymentStatus, setNewPaymentStatus] = useState("");
   const [trackingNumber, setTrackingNumber] = useState("");
   const [statusNote, setStatusNote] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [copiedTid, setCopiedTid] = useState(false);
 
   const fetchOrders = async () => {
     try {
@@ -95,33 +108,78 @@ export default function AdminOrdersPage() {
   const openOrderDetail = (order: AdminOrder) => {
     setSelectedOrder(order);
     setNewStatus(order.status);
+    setNewPaymentStatus(order.paymentStatus || "PENDING");
     setTrackingNumber(order.trackingNumber || "");
     setStatusNote("");
+    setCopiedTid(false);
   };
 
-  const handleUpdateOrderStatus = async () => {
+  const copyTidToClipboard = (tid: string) => {
+    navigator.clipboard.writeText(tid);
+    setCopiedTid(true);
+    setTimeout(() => setCopiedTid(false), 2000);
+  };
+
+  const handleUpdateOrderStatus = async (
+    overrideStatus?: string,
+    overridePaymentStatus?: string,
+    customNote?: string
+  ) => {
     if (!selectedOrder) return;
     setIsUpdating(true);
     try {
+      const finalStatus = overrideStatus || newStatus;
+      const finalPaymentStatus = overridePaymentStatus || newPaymentStatus;
+
       const res = await fetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: selectedOrder.id,
-          status: newStatus,
+          status: finalStatus,
+          paymentStatus: finalPaymentStatus,
           trackingNumber: trackingNumber.trim() || null,
-          note: statusNote.trim() || undefined,
+          note:
+            customNote ||
+            statusNote.trim() ||
+            `Updated by admin to ${finalStatus} (Payment: ${finalPaymentStatus})`,
         }),
       });
 
       if (res.ok) {
         const updated = await res.json();
         setSelectedOrder(updated);
+        setNewStatus(updated.status);
+        setNewPaymentStatus(updated.paymentStatus);
         await fetchOrders();
       }
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const formatPaymentMethodName = (method: string) => {
+    switch (method) {
+      case "BANK_TRANSFER":
+        return "Meezan Bank";
+      case "EASYPAISA":
+        return "Easypaisa";
+      case "JAZZ_CASH":
+        return "JazzCash";
+      case "CASH_ON_DELIVERY":
+        return "COD";
+      default:
+        return method.replace(/_/g, " ");
+    }
+  };
+
+  const formatWhatsAppUrl = (phone: string, orderNumber: string) => {
+    let cleanPhone = phone.replace(/[^0-9]/g, "");
+    if (cleanPhone.startsWith("0")) {
+      cleanPhone = "92" + cleanPhone.slice(1);
+    }
+    const message = `Hello! This is CARE SPARE PARTS regarding your Order #${orderNumber}.`;
+    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
   };
 
   return (
@@ -132,7 +190,7 @@ export default function AdminOrdersPage() {
             Orders & Shipments
           </h1>
           <p className="text-xs sm:text-sm text-brand-zinc-400 mt-1">
-            Dispatch verification, vehicle fitment check, payment slips, and courier tracking
+            Payment verification (Meezan Bank, Easypaisa, JazzCash), TID inspection, vehicle fitment check, and courier dispatch
           </p>
         </div>
         <Button
@@ -151,15 +209,14 @@ export default function AdminOrdersPage() {
           (status) => (
             <button
               key={status}
-              type="button"
               onClick={() => setStatusFilter(status)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                 statusFilter === status
-                  ? "bg-brand-amber text-brand-black"
-                  : "bg-brand-zinc-800 text-brand-zinc-300 hover:bg-brand-zinc-700"
+                  ? "bg-brand-amber text-brand-black shadow-md shadow-brand-amber/10"
+                  : "bg-brand-zinc-800 text-brand-zinc-400 hover:text-brand-white hover:bg-brand-zinc-700"
               }`}
             >
-              {status || "All Orders"}
+              {status === "" ? "All Orders" : status}
             </button>
           )
         )}
@@ -169,15 +226,14 @@ export default function AdminOrdersPage() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <div className="py-20 flex justify-center">
+            <div className="p-12 text-center">
               <Spinner size="lg" color="amber" />
             </div>
           ) : orders.length === 0 ? (
-            <div className="py-20 text-center space-y-2">
-              <ShoppingBag className="w-10 h-10 text-brand-zinc-600 mx-auto" />
-              <div className="text-base font-semibold text-brand-white">No orders found</div>
+            <div className="p-12 text-center space-y-3">
+              <p className="text-sm font-semibold text-brand-zinc-300">No orders found</p>
               <p className="text-xs text-brand-zinc-500">
-                Customer purchases will appear here with live notification badges.
+                Customer purchases will appear here with live payment notification badges.
               </p>
             </div>
           ) : (
@@ -187,11 +243,11 @@ export default function AdminOrdersPage() {
                   <tr className="border-b border-brand-zinc-800 bg-brand-zinc-800/40 text-brand-zinc-400">
                     <th className="py-3 px-4 font-semibold">Order #</th>
                     <th className="py-3 px-4 font-semibold">Customer</th>
-                    <th className="py-3 px-4 font-semibold">Items</th>
                     <th className="py-3 px-4 font-semibold">Total</th>
-                    <th className="py-3 px-4 font-semibold">Payment</th>
-                    <th className="py-3 px-4 font-semibold">Fitment</th>
-                    <th className="py-3 px-4 font-semibold">Status</th>
+                    <th className="py-3 px-4 font-semibold">Payment Method</th>
+                    <th className="py-3 px-4 font-semibold">Transaction ID (TID)</th>
+                    <th className="py-3 px-4 font-semibold">Payment Status</th>
+                    <th className="py-3 px-4 font-semibold">Order Status</th>
                     <th className="py-3 px-4 text-right font-semibold">Action</th>
                   </tr>
                 </thead>
@@ -205,24 +261,36 @@ export default function AdminOrdersPage() {
                         <div className="font-semibold text-brand-zinc-200">{o.customerName}</div>
                         <div className="text-[11px] text-brand-zinc-400">{o.customerPhone}</div>
                       </td>
-                      <td className="py-3 px-4 text-brand-zinc-300">
-                        {o.items.length} {o.items.length === 1 ? "part" : "parts"}
-                      </td>
                       <td className="py-3 px-4 font-bold text-brand-amber font-heading">
                         {formatPrice(o.total)}
                       </td>
                       <td className="py-3 px-4">
                         <Badge size="sm" variant="zinc">
-                          {o.paymentMethod.replace(/_/g, " ")}
+                          {formatPaymentMethodName(o.paymentMethod)}
                         </Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        {o.transactionId ? (
+                          <span className="font-mono text-emerald-400 font-semibold bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">
+                            {o.transactionId}
+                          </span>
+                        ) : (
+                          <span className="text-brand-zinc-500 italic">None</span>
+                        )}
                       </td>
                       <td className="py-3 px-4">
                         <Badge
                           size="sm"
-                          variant={o.fitmentConfirmed ? "green" : "red"}
+                          variant={
+                            o.paymentStatus === "PAID"
+                              ? "green"
+                              : o.paymentStatus === "FAILED"
+                              ? "red"
+                              : "amber"
+                          }
                           dot
                         >
-                          {o.fitmentConfirmed ? "Confirmed" : "Unverified"}
+                          {o.paymentStatus || "PENDING"}
                         </Badge>
                       </td>
                       <td className="py-3 px-4">
@@ -268,10 +336,129 @@ export default function AdminOrdersPage() {
           size="lg"
         >
           <div className="space-y-6 py-2 max-h-[75vh] overflow-y-auto">
+            {/* Payment Verification & Quick Confirmation Card */}
+            <div className="p-4 rounded-2xl bg-gradient-to-b from-brand-zinc-900 to-brand-zinc-950 border border-brand-zinc-700 space-y-4 shadow-lg">
+              <div className="flex items-center justify-between pb-2 border-b border-brand-zinc-800">
+                <div className="flex items-center gap-2">
+                  {selectedOrder.paymentMethod === "BANK_TRANSFER" ? (
+                    <Building2 className="w-4 h-4 text-brand-amber" />
+                  ) : selectedOrder.paymentMethod === "EASYPAISA" ? (
+                    <Smartphone className="w-4 h-4 text-emerald-400" />
+                  ) : (
+                    <Wallet className="w-4 h-4 text-amber-400" />
+                  )}
+                  <span className="font-heading font-bold text-xs text-brand-white uppercase tracking-wider">
+                    Payment Verification
+                  </span>
+                </div>
+
+                <Badge
+                  size="sm"
+                  variant={
+                    selectedOrder.paymentStatus === "PAID"
+                      ? "green"
+                      : selectedOrder.paymentStatus === "FAILED"
+                      ? "red"
+                      : "amber"
+                  }
+                  dot
+                >
+                  Payment: {selectedOrder.paymentStatus || "PENDING"}
+                </Badge>
+              </div>
+
+              {/* TID and Method Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="p-3 rounded-xl bg-brand-black/60 border border-brand-zinc-800 space-y-1">
+                  <div className="text-[11px] text-brand-zinc-400">Payment Channel</div>
+                  <div className="font-bold text-brand-white text-sm">
+                    {formatPaymentMethodName(selectedOrder.paymentMethod)}
+                  </div>
+                  {selectedOrder.senderAccount && (
+                    <div className="text-[11px] text-brand-zinc-400">
+                      Sender Info: <span className="text-brand-zinc-200">{selectedOrder.senderAccount}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-3 rounded-xl bg-brand-black/60 border border-brand-zinc-800 space-y-1">
+                  <div className="text-[11px] text-brand-zinc-400">Transaction ID (TID)</div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono font-bold text-emerald-400 text-sm tracking-wide">
+                      {selectedOrder.transactionId || "No TID Provided"}
+                    </span>
+                    {selectedOrder.transactionId && (
+                      <button
+                        type="button"
+                        onClick={() => copyTidToClipboard(selectedOrder.transactionId!)}
+                        className="px-2 py-1 rounded bg-brand-zinc-800 hover:bg-brand-zinc-700 text-brand-zinc-300 transition-colors flex items-center gap-1 text-[11px]"
+                      >
+                        {copiedTid ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedTid ? "Copied" : "Copy"}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 1-Click Action Buttons for Admin */}
+              <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-brand-zinc-800">
+                <Button
+                  size="sm"
+                  variant="primary"
+                  loading={isUpdating}
+                  onClick={() =>
+                    handleUpdateOrderStatus(
+                      "CONFIRMED",
+                      "PAID",
+                      `Payment confirmed & received via ${selectedOrder.paymentMethod}. TID: ${selectedOrder.transactionId || "verified"}`
+                    )
+                  }
+                  leftIcon={<CheckCircle className="w-3.5 h-3.5" />}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+                >
+                  Confirm Payment (Mark Received & Confirm Order)
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  loading={isUpdating}
+                  onClick={() =>
+                    handleUpdateOrderStatus(
+                      selectedOrder.status,
+                      "FAILED",
+                      "Payment marked as failed / not received by admin"
+                    )
+                  }
+                  leftIcon={<XCircle className="w-3.5 h-3.5 text-rose-400" />}
+                  className="text-xs text-rose-400 border-rose-500/30 hover:bg-rose-950/30"
+                >
+                  Mark Payment Failed
+                </Button>
+
+                <a
+                  href={formatWhatsAppUrl(selectedOrder.customerPhone, selectedOrder.orderNumber)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-auto"
+                >
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="text-xs text-emerald-400 hover:bg-emerald-950/40 border-emerald-500/30"
+                    leftIcon={<MessageSquare className="w-3.5 h-3.5 text-emerald-400" />}
+                  >
+                    WhatsApp Customer
+                  </Button>
+                </a>
+              </div>
+            </div>
+
             {/* Status Update Control Box */}
             <div className="p-4 rounded-xl bg-brand-zinc-800 border border-brand-zinc-700 space-y-3">
-              <div className="text-xs font-semibold text-brand-white">Update Dispatch Status</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="text-xs font-semibold text-brand-white">Order Status & Courier Tracking</div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Select
                   label="Order Status"
                   value={newStatus}
@@ -283,6 +470,18 @@ export default function AdminOrdersPage() {
                     { label: "SHIPPED", value: "SHIPPED" },
                     { label: "DELIVERED", value: "DELIVERED" },
                     { label: "CANCELLED", value: "CANCELLED" },
+                  ]}
+                />
+
+                <Select
+                  label="Payment Status"
+                  value={newPaymentStatus}
+                  onChange={(e) => setNewPaymentStatus(e.target.value)}
+                  options={[
+                    { label: "PENDING", value: "PENDING" },
+                    { label: "PAID", value: "PAID" },
+                    { label: "FAILED", value: "FAILED" },
+                    { label: "REFUNDED", value: "REFUNDED" },
                   ]}
                 />
 
@@ -308,9 +507,9 @@ export default function AdminOrdersPage() {
                   size="sm"
                   variant="primary"
                   loading={isUpdating}
-                  onClick={handleUpdateOrderStatus}
+                  onClick={() => handleUpdateOrderStatus()}
                 >
-                  Save Order Updates
+                  Save Status Updates
                 </Button>
               </div>
             </div>
@@ -335,9 +534,16 @@ export default function AdminOrdersPage() {
                   <MapPin className="w-3.5 h-3.5 text-brand-amber" />
                   <span>Delivery Address</span>
                 </div>
-                <div>{selectedOrder.shippingAddress?.streetAddress || "Street Address"}</div>
+                <div>
+                  {selectedOrder.shippingAddress?.streetAddress ||
+                    selectedOrder.shippingAddress?.street ||
+                    "Street Address"}
+                </div>
                 <div className="text-brand-zinc-400">
                   {selectedOrder.shippingAddress?.city || "City"},{" "}
+                  {selectedOrder.shippingAddress?.province ||
+                    selectedOrder.shippingAddress?.state ||
+                    ""}{" "}
                   {selectedOrder.shippingAddress?.postalCode || ""}
                 </div>
               </div>
@@ -349,7 +555,7 @@ export default function AdminOrdersPage() {
                 <div className="flex items-center justify-between">
                   <div className="text-xs font-semibold text-brand-white flex items-center gap-1.5">
                     <Receipt className="w-4 h-4 text-brand-amber" />
-                    <span>Bank Transfer Payment Proof (Vercel Blob)</span>
+                    <span>Payment Screenshot Proof</span>
                   </div>
                   <a
                     href={selectedOrder.bankTransferProofUrl}
@@ -360,11 +566,11 @@ export default function AdminOrdersPage() {
                     View Original <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
-                <div className="max-h-48 rounded-lg overflow-hidden bg-brand-black flex items-center justify-center p-2">
+                <div className="max-h-56 rounded-lg overflow-hidden bg-brand-black flex items-center justify-center p-2">
                   <img
                     src={selectedOrder.bankTransferProofUrl}
                     alt="Payment Slip"
-                    className="max-h-44 object-contain rounded"
+                    className="max-h-52 object-contain rounded"
                   />
                 </div>
               </div>
