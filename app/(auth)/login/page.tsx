@@ -112,7 +112,7 @@ function LoginForm() {
         </Button>
       </form>
 
-      <div className="pt-4 border-t border-brand-zinc-800 text-center space-y-2">
+      <div className="pt-4 border-t border-brand-zinc-800 text-center">
         <p className="text-xs text-brand-zinc-400">
           Don&apos;t have an account yet?{" "}
           <Link
@@ -120,15 +120,6 @@ function LoginForm() {
             className="text-brand-amber font-semibold hover:underline"
           >
             Create Customer Account
-          </Link>
-        </p>
-        <p className="text-xs text-brand-zinc-500">
-          Are you a workshop or wholesale buyer?{" "}
-          <Link
-            href="/register?type=wholesale"
-            className="text-brand-zinc-300 font-medium hover:text-brand-amber underline"
-          >
-            Apply for Wholesale
           </Link>
         </p>
       </div>

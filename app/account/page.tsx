@@ -10,16 +10,21 @@ export default async function AccountDashboardPage() {
   const session = await auth();
   const userId = session?.user?.id;
 
-  const orders = userId
-    ? await db.order.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        take: 3,
-        include: {
-          items: true,
-        },
-      })
-    : [];
+  const [orders, vehiclesCount] = userId
+    ? await Promise.all([
+        db.order.findMany({
+          where: { userId },
+          orderBy: { createdAt: "desc" },
+          take: 3,
+          include: {
+            items: true,
+          },
+        }),
+        db.savedVehicle.count({
+          where: { userId },
+        }),
+      ])
+    : [[], 0];
 
   const totalSpent = orders.reduce((sum, ord) => sum + ord.total, 0);
 
@@ -51,16 +56,14 @@ export default async function AccountDashboardPage() {
 
         <div className="p-5 rounded-2xl bg-brand-zinc border border-brand-zinc-800 space-y-2">
           <div className="flex items-center justify-between text-brand-zinc-400 text-xs">
-            <span>Wholesale Status</span>
+            <span>My Garage</span>
             <Wrench className="w-4 h-4 text-brand-amber" />
           </div>
           <div className="text-2xl font-heading font-extrabold text-brand-white">
-            {session?.user?.role === "WHOLESALE" ? "Approved" : "Standard"}
+            {vehiclesCount} {vehiclesCount === 1 ? "Vehicle" : "Vehicles"}
           </div>
           <div className="text-[11px] text-brand-zinc-500">
-            {session?.user?.role === "WHOLESALE"
-              ? "B2B discounted tier pricing active"
-              : "Retail customer account"}
+            Saved for precision part fitment check
           </div>
         </div>
       </div>

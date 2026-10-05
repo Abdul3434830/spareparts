@@ -319,9 +319,6 @@ export function Header({
             <Link href="/brands" className="font-semibold text-brand-zinc-300 hover:text-brand-white">
               Brands
             </Link>
-            <Link href="/wholesale" className="font-semibold text-brand-zinc-300 hover:text-brand-white">
-              Wholesale & Workshops
-            </Link>
             <Link href="/about" className="font-semibold text-brand-zinc-300 hover:text-brand-white">
               About CARE
             </Link>
@@ -372,11 +369,11 @@ export function Header({
               Shopping Cart ({mounted ? cartItemsCount : 0})
             </Link>
             <Link
-              href="/wholesale"
+              href="/about"
               onClick={() => setMobileMenuOpen(false)}
-              className="block p-2 rounded-lg bg-brand-zinc-800 text-brand-amber"
+              className="block p-2 rounded-lg bg-brand-zinc-800 text-brand-zinc-300"
             >
-              Wholesale & Workshop Inquiry
+              About CARE
             </Link>
           </div>
         </div>

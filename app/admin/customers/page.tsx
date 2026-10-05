@@ -21,7 +21,6 @@ interface CustomerUser {
 export default function AdminCustomersPage() {
   const [users, setUsers] = useState<CustomerUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -41,31 +40,15 @@ export default function AdminCustomersPage() {
     fetchUsers();
   }, []);
 
-  const handleToggleWholesaleApproval = async (id: string, currentApproval: boolean) => {
-    setUpdatingId(id);
-    try {
-      const res = await fetch("/api/admin/customers", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, isApproved: !currentApproval }),
-      });
-      if (res.ok) {
-        await fetchUsers();
-      }
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-heading font-extrabold text-brand-white">
-            Customers & Wholesale Accounts
+            Customer Accounts
           </h1>
           <p className="text-xs sm:text-sm text-brand-zinc-400 mt-1">
-            Registered accounts, garage vehicles count, and wholesale discount tier approval
+            Registered customer accounts, saved garage vehicles count, and order history
           </p>
         </div>
         <Button
@@ -94,13 +77,11 @@ export default function AdminCustomersPage() {
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-brand-zinc-800 bg-brand-zinc-800/40 text-brand-zinc-400">
-                    <th className="py-3 px-4 font-semibold">User</th>
+                    <th className="py-3 px-4 font-semibold">Customer</th>
                     <th className="py-3 px-4 font-semibold">Role</th>
-                    <th className="py-3 px-4 font-semibold">Wholesale Status</th>
                     <th className="py-3 px-4 font-semibold">Orders</th>
-                    <th className="py-3 px-4 font-semibold">Garage</th>
-                    <th className="py-3 px-4 font-semibold">Registered</th>
-                    <th className="py-3 px-4 text-right font-semibold">Wholesale Action</th>
+                    <th className="py-3 px-4 font-semibold">My Garage</th>
+                    <th className="py-3 px-4 text-right font-semibold">Joined Date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-zinc-800">
@@ -108,7 +89,7 @@ export default function AdminCustomersPage() {
                     <tr key={u.id} className="hover:bg-brand-zinc-800/25 transition-colors">
                       <td className="py-3 px-4">
                         <div className="font-semibold text-brand-white">{u.name || "Customer"}</div>
-                        <div className="text-[11px] text-brand-zinc-400 flex items-center gap-2">
+                        <div className="text-[11px] text-brand-zinc-400 flex items-center gap-2 mt-0.5">
                           <span>{u.email}</span>
                           {u.phone && <span>• {u.phone}</span>}
                         </div>
@@ -117,26 +98,10 @@ export default function AdminCustomersPage() {
                       <td className="py-3 px-4">
                         <Badge
                           size="sm"
-                          variant={
-                            u.role === "ADMIN"
-                              ? "amber"
-                              : u.role === "WHOLESALE"
-                              ? "purple"
-                              : "zinc"
-                          }
+                          variant={u.role === "ADMIN" ? "amber" : "zinc"}
                         >
                           {u.role}
                         </Badge>
-                      </td>
-
-                      <td className="py-3 px-4">
-                        {u.role === "WHOLESALE" ? (
-                          <Badge size="sm" variant={u.isApproved ? "green" : "red"} dot>
-                            {u.isApproved ? "Approved Wholesale" : "Pending Approval"}
-                          </Badge>
-                        ) : (
-                          <span className="text-brand-zinc-500 text-[11px]">Retail Account</span>
-                        )}
                       </td>
 
                       <td className="py-3 px-4 font-semibold text-brand-zinc-300">
@@ -144,26 +109,11 @@ export default function AdminCustomersPage() {
                       </td>
 
                       <td className="py-3 px-4 text-brand-zinc-300">
-                        {u._count.garage} cars
+                        {u._count.garage} {u._count.garage === 1 ? "car" : "cars"}
                       </td>
 
-                      <td className="py-3 px-4 text-brand-zinc-400">
+                      <td className="py-3 px-4 text-right text-brand-zinc-400">
                         {new Date(u.createdAt).toLocaleDateString()}
-                      </td>
-
-                      <td className="py-3 px-4 text-right">
-                        {u.role === "WHOLESALE" ? (
-                          <Button
-                            size="sm"
-                            variant={u.isApproved ? "outline" : "primary"}
-                            loading={updatingId === u.id}
-                            onClick={() => handleToggleWholesaleApproval(u.id, u.isApproved)}
-                          >
-                            {u.isApproved ? "Revoke Access" : "Approve Wholesale"}
-                          </Button>
-                        ) : (
-                          <span className="text-[11px] text-brand-zinc-600">—</span>
-                        )}
                       </td>
                     </tr>
                   ))}

@@ -25,7 +25,7 @@ const navItems = [
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/quotes", label: "Quote Requests", icon: Inbox },
-  { href: "/admin/customers", label: "Customers & Wholesale", icon: Users },
+  { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/blog", label: "Blog Posts", icon: FileText },
 ];
 

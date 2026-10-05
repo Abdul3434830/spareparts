@@ -1,4 +1,7 @@
+import { redirect } from "next/navigation";
+
 export const dynamic = "force-dynamic";
-import WholesalePage from "../wholesale/page";
-export { metadata } from "../wholesale/page";
-export default WholesalePage;
+
+export default function QuotesPage() {
+  redirect("/shop");
+}

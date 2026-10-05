@@ -151,11 +151,6 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/wholesale" className="hover:text-brand-amber transition-colors">
-                Wholesale Application
-              </Link>
-            </li>
-            <li>
               <Link href="/about" className="hover:text-brand-amber transition-colors">
                 About Our Parts
               </Link>

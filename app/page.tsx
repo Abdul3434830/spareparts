@@ -207,7 +207,7 @@ export default async function HomePage() {
                   Payment Flexibility
                 </h4>
                 <p className="text-xs text-brand-zinc-400 mt-1">
-                  Cash on Delivery, Direct Bank Transfer & Wholesale accounts.
+                  Meezan Bank, Easypaisa & JazzCash verified payments.
                 </p>
               </div>
             </div>
@@ -577,9 +577,9 @@ export default async function HomePage() {
                     Request on WhatsApp
                   </Button>
                 </a>
-                <Link href="/quotes">
+                <Link href="/shop">
                   <Button variant="outline" size="lg" className="text-xs">
-                    Submit Formal Quote Request
+                    Browse All Parts Catalog
                   </Button>
                 </Link>
               </div>
