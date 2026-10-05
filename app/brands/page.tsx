@@ -5,8 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
-import { Tag, ArrowRight, ShieldCheck, Globe, Wrench } from "lucide-react";
-import { Badge } from "@/components/ui";
+import { Tag, ArrowRight, ShieldCheck, Globe } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
