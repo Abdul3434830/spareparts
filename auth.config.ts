@@ -21,7 +21,7 @@ export const authConfig = {
     session({ session, token }) {
       if (token && session.user) {
         session.user.id = (token.id as string) || (token.sub as string);
-        session.user.role = (token.role as Role) || Role.CUSTOMER;
+        session.user.role = (token.role as Role) || "CUSTOMER";
         session.user.isApproved = (token.isApproved as boolean) || false;
         session.user.phone = (token.phone as string) || null;
       }
