@@ -20,6 +20,7 @@ import { useCartStore } from "@/store/cart";
 import { useGarageStore } from "@/store/garage";
 import { Button } from "@/components/ui";
 import { MyGarageModal } from "@/components/fitment/MyGarageModal";
+import { Logo } from "@/components/layout/Logo";
 
 interface CategoryNav {
   id: string;
@@ -71,7 +72,7 @@ export function Header({
         <div className="mx-auto sm:mx-0 flex items-center gap-4">
           <a
             href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-              "Hello CARE SPARE PARTS, I need help checking part fitment for my car."
+              "Hello CARS SPARE PARTS, I need help checking part fitment for my car."
             )}`}
             target="_blank"
             rel="noreferrer"
@@ -104,12 +105,8 @@ export function Header({
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
-        {/* Brand Logo Wordmark */}
-        <Link href="/" className="shrink-0">
-          <span className="text-xl sm:text-2xl font-heading font-extrabold tracking-tight text-brand-white">
-            CARE <span className="text-brand-amber">SPARE PARTS</span>
-          </span>
-        </Link>
+        {/* Brand Logo */}
+        <Logo href="/" />
 
         {/* Global Search Bar */}
         <form
@@ -320,7 +317,7 @@ export function Header({
               Brands
             </Link>
             <Link href="/about" className="font-semibold text-brand-zinc-300 hover:text-brand-white">
-              About CARE
+              About CARS
             </Link>
           </div>
 
@@ -373,7 +370,7 @@ export function Header({
               onClick={() => setMobileMenuOpen(false)}
               className="block p-2 rounded-lg bg-brand-zinc-800 text-brand-zinc-300"
             >
-              About CARE
+              About CARS
             </Link>
           </div>
         </div>

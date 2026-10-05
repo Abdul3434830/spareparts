@@ -12,6 +12,20 @@ const nextConfig = {
   },
   // Strict mode for catching bugs early
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: "/wholesale",
+        destination: "/shop",
+        permanent: true,
+      },
+      {
+        source: "/quotes",
+        destination: "/shop",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

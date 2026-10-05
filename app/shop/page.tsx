@@ -8,7 +8,7 @@ import { ShopCatalog } from "@/components/shop/ShopCatalog";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Auto Spare Parts Catalog | CARE SPARE PARTS",
+  title: "Auto Spare Parts Catalog | CARS SPARE PARTS",
   description:
     "Explore our complete inventory of genuine OEM and high performance replacement auto parts. Guaranteed vehicle fitment and express nationwide delivery.",
 };
@@ -69,7 +69,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                 }`
               : "All Spare Parts"
           }
-          description="Browse the comprehensive CARE SPARE PARTS inventory. Filter by vehicle make, model, brand, or component category."
+          description="Browse the comprehensive CARS SPARE PARTS inventory. Filter by vehicle make, model, brand, or component category."
         />
       </main>
 

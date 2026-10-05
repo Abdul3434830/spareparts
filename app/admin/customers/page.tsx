@@ -9,7 +9,7 @@ interface CustomerUser {
   name?: string | null;
   email: string;
   phone?: string | null;
-  role: "CUSTOMER" | "WHOLESALE" | "ADMIN";
+  role: "CUSTOMER" | "ADMIN";
   isApproved: boolean;
   createdAt: string;
   _count: {

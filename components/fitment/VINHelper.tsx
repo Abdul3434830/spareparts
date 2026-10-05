@@ -22,7 +22,7 @@ export function VINHelper({
 
   const handleSendToWhatsApp = () => {
     const text = encodeURIComponent(
-      `Hello CARE SPARE PARTS! 🚗\nI want to verify if this part fits my vehicle:\n\nPart: ${productName}\nSKU / Part #: ${partNumber}\n\nVehicle VIN / Chassis #: ${vin.toUpperCase()}\nAdditional Notes: ${
+      `Hello CARS SPARE PARTS! 🚗\nI want to verify if this part fits my vehicle:\n\nPart: ${productName}\nSKU / Part #: ${partNumber}\n\nVehicle VIN / Chassis #: ${vin.toUpperCase()}\nAdditional Notes: ${
         vehicleNote.trim() || "None"
       }\n\nPlease confirm compatibility. Thank you!`
     );

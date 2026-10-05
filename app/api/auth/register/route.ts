@@ -9,8 +9,6 @@ const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   phone: z.string().min(7, "Phone number is required"),
-  accountType: z.enum(["CUSTOMER", "WHOLESALE"]).default("CUSTOMER"),
-  companyName: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -25,7 +23,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { name, email, password, phone, accountType, companyName } = result.data;
+    const { name, email, password, phone } = result.data;
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if user already exists
@@ -41,7 +39,6 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const isWholesale = accountType === "WHOLESALE";
 
     const user = await db.user.create({
       data: {
@@ -49,8 +46,8 @@ export async function POST(req: Request) {
         email: normalizedEmail,
         password: hashedPassword,
         phone,
-        role: isWholesale ? Role.WHOLESALE : Role.CUSTOMER,
-        isApproved: !isWholesale, // Wholesale requires admin approval
+        role: Role.CUSTOMER,
+        isApproved: true,
       },
       select: {
         id: true,
@@ -62,25 +59,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // If wholesale, also record a note or quote request if company name was provided
-    if (isWholesale && companyName) {
-      await db.quoteRequest.create({
-        data: {
-          name,
-          email: normalizedEmail,
-          phone,
-          companyName,
-          partsList: "New wholesale account registration application",
-          notes: `User applied for wholesale status. User ID: ${user.id}`,
-        },
-      });
-    }
-
     return NextResponse.json(
       {
-        message: isWholesale
-          ? "Wholesale account created! Our team will review and approve your wholesale access within 24 hours."
-          : "Account created successfully!",
+        message: "Account created successfully!",
         user,
       },
       { status: 201 }

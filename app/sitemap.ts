@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXTAUTH_URL || "https://carespareparts.com";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://carsspareparts.com";
 
   // Static routes
   const staticRoutes: MetadataRoute.Sitemap = [

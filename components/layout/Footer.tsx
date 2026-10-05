@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ShieldCheck, Truck, RefreshCw, MessageSquare, Phone, Mail } from "lucide-react";
 import { PAYMENT_CONFIG } from "@/lib/payment-methods";
+import { Logo } from "@/components/layout/Logo";
 
 export function Footer() {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || PAYMENT_CONFIG.whatsappNumber;
@@ -72,11 +73,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
         {/* Col 1: Brand & Bio */}
         <div className="lg:col-span-2 space-y-4">
-          <Link href="/" className="inline-block">
-            <span className="text-xl font-heading font-extrabold tracking-tight text-brand-white">
-              CARE <span className="text-brand-amber">SPARE PARTS</span>
-            </span>
-          </Link>
+          <Logo href="/" />
           <p className="text-xs uppercase tracking-widest text-brand-amber font-semibold font-heading">
             THE RIGHT PART. THE RIGHT FIT.
           </p>
@@ -205,7 +202,7 @@ export function Footer() {
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-brand-zinc-500 pt-2">
             <div>
-              &copy; {new Date().getFullYear()} CARE SPARE PARTS. All rights reserved.
+              &copy; {new Date().getFullYear()} CARS SPARE PARTS. All rights reserved.
             </div>
 
             <div className="flex items-center gap-4">

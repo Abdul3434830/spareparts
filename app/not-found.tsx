@@ -49,7 +49,7 @@ export default function NotFound() {
 
           <a
             href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-              "Hello CARE SPARE PARTS! I ran into a 404 page while searching for a part. Can you help me find it?"
+              "Hello CARS SPARE PARTS! I ran into a 404 page while searching for a part. Can you help me find it?"
             )}`}
             target="_blank"
             rel="noopener noreferrer"

@@ -55,5 +55,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  secret: process.env.AUTH_SECRET || "default_care_spare_parts_auth_secret_replace_in_prod",
+  secret: process.env.AUTH_SECRET || "default_cars_spare_parts_auth_secret_replace_in_prod",
 });

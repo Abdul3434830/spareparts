@@ -172,7 +172,7 @@ const CATEGORIES_DATA = [
 ];
 
 async function main() {
-  console.log("🌱 Starting idempotent database seed for CARE SPARE PARTS...");
+  console.log("🌱 Starting idempotent database seed for CARS SPARE PARTS...");
 
   // 1. Seed Categories & Subcategories
   console.log("📦 Seeding 12 Categories and Subcategories...");
@@ -213,7 +213,7 @@ async function main() {
   console.log("✅ Categories and Subcategories seeded successfully.");
 
   // 2. Seed Admin User
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@carespareparts.com";
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@carsspareparts.com";
   const rawAdminPassword = process.env.ADMIN_PASSWORD || "ChangeMe123!";
   const hashedPassword = await bcrypt.hash(rawAdminPassword, 12);
 
@@ -226,7 +226,7 @@ async function main() {
     },
     create: {
       email: adminEmail,
-      name: "CARE SPARE PARTS Admin",
+      name: "CARS SPARE PARTS Admin",
       password: hashedPassword,
       role: Role.ADMIN,
       isApproved: true,

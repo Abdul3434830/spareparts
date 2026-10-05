@@ -60,7 +60,6 @@ export async function POST(req: Request) {
     const conditionIdx = header.indexOf("condition");
     const priceIdx = header.indexOf("price");
     const salePriceIdx = header.indexOf("saleprice");
-    const wholesalePriceIdx = header.indexOf("wholesaleprice");
     const supplierPriceIdx = header.indexOf("supplierprice");
     const stockIdx = header.indexOf("stock");
 
@@ -156,7 +155,6 @@ export async function POST(req: Request) {
 
         const supplierPrice = supplierPriceIdx !== -1 && row[supplierPriceIdx] ? parseFloat(row[supplierPriceIdx]) || 0 : 0;
         const salePrice = salePriceIdx !== -1 && row[salePriceIdx] ? parseFloat(row[salePriceIdx]) || null : null;
-        const wholesalePrice = wholesalePriceIdx !== -1 && row[wholesalePriceIdx] ? parseFloat(row[wholesalePriceIdx]) || null : null;
         const stock = stockIdx !== -1 && row[stockIdx] ? parseInt(row[stockIdx], 10) || 0 : 0;
 
         let type: ProductType = ProductType.AFTERMARKET;
@@ -188,7 +186,6 @@ export async function POST(req: Request) {
                 condition,
                 price,
                 salePrice,
-                wholesalePrice,
                 supplierPrice,
                 stock,
               },
@@ -208,7 +205,6 @@ export async function POST(req: Request) {
                 condition,
                 price,
                 salePrice,
-                wholesalePrice,
                 supplierPrice,
                 stock,
                 oemNumbers: [],

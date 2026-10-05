@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Logo } from "@/components/layout/Logo";
 import {
   LayoutDashboard,
   Package,
@@ -47,12 +48,8 @@ export default async function AdminLayout({
       <aside className="w-full md:w-64 bg-brand-zinc border-r border-brand-zinc-800 flex flex-col shrink-0">
         {/* Brand Wordmark */}
         <div className="p-5 border-b border-brand-zinc-800">
-          <Link href="/admin" className="block">
-            <span className="text-lg font-heading font-extrabold text-brand-white tracking-wide">
-              CARE <span className="text-brand-amber">SPARE PARTS</span>
-            </span>
-          </Link>
-          <div className="inline-flex items-center gap-1.5 mt-1 text-[11px] font-semibold text-brand-amber">
+          <Logo href="/admin" />
+          <div className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-semibold text-brand-amber">
             <Shield className="w-3.5 h-3.5" />
             <span>Admin Console</span>
           </div>

@@ -10,7 +10,7 @@ import { Tag, ArrowRight, ShieldCheck, Globe } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Auto Component Manufacturers & Brands | CARE SPARE PARTS",
+  title: "Auto Component Manufacturers & Brands | CARS SPARE PARTS",
   description:
     "Explore genuine OEM and aftermarket brands including Bosch, Denso, Brembo, NGK, Aisin, KYB, and more. 100% authentic spare parts with guaranteed fitment.",
 };

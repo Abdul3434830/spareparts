@@ -16,7 +16,6 @@ const updateSchema = z.object({
   warranty: z.string().optional().nullable(),
   price: z.number().positive().optional(),
   salePrice: z.number().positive().optional().nullable(),
-  wholesalePrice: z.number().positive().optional().nullable(),
   supplierPrice: z.number().min(0).optional(),
   stock: z.number().int().min(0).optional(),
   lowStockThreshold: z.number().int().optional(),

@@ -61,10 +61,10 @@ export default function AdminQuotesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-heading font-extrabold text-brand-white">
-            Quote Requests & Wholesale Inbox
+            Custom Parts & Sourcing Inquiries
           </h1>
           <p className="text-xs sm:text-sm text-brand-zinc-400 mt-1">
-            Review custom auto parts inquiries, bulk quote requests, and workshop applications
+            Review custom auto parts inquiries, special sourcing requests, and customer inquiries
           </p>
         </div>
         <Button
@@ -88,7 +88,7 @@ export default function AdminQuotesPage() {
               <Inbox className="w-10 h-10 text-brand-zinc-600 mx-auto" />
               <div className="text-base font-semibold text-brand-white">No quote requests yet</div>
               <p className="text-xs text-brand-zinc-500">
-                When visitors submit wholesale inquiries, they will appear here.
+                When visitors submit sourcing or custom part inquiries, they will appear here.
               </p>
             </div>
           ) : (

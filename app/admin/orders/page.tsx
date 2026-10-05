@@ -17,6 +17,8 @@ import {
   Building2,
   Smartphone,
   Wallet,
+  RotateCcw,
+  AlertCircle,
 } from "lucide-react";
 import { Button, Input, Select, Card, CardContent, Badge, Spinner, Modal } from "@/components/ui";
 import { formatPrice } from "@/lib/utils";
@@ -178,7 +180,7 @@ export default function AdminOrdersPage() {
     if (cleanPhone.startsWith("0")) {
       cleanPhone = "92" + cleanPhone.slice(1);
     }
-    const message = `Hello! This is CARE SPARE PARTS regarding your Order #${orderNumber}.`;
+    const message = `Hello! This is CARS SPARE PARTS regarding your Order #${orderNumber}.`;
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
   };
 
@@ -437,6 +439,32 @@ export default function AdminOrdersPage() {
                   Mark Payment Failed
                 </Button>
 
+                {selectedOrder.status !== "CANCELLED" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    loading={isUpdating}
+                    onClick={() => {
+                      const totalUnits = selectedOrder.items.reduce((acc, it) => acc + it.quantity, 0);
+                      if (
+                        window.confirm(
+                          `Cancel Order #${selectedOrder.orderNumber}?\n\nThis will automatically restore ${totalUnits} unit(s) of reserved stock back into product inventory.`
+                        )
+                      ) {
+                        handleUpdateOrderStatus(
+                          "CANCELLED",
+                          selectedOrder.paymentStatus === "PAID" ? "REFUNDED" : "FAILED",
+                          "Order cancelled by admin. Reserved stock has been automatically restored to inventory."
+                        );
+                      }
+                    }}
+                    leftIcon={<RotateCcw className="w-3.5 h-3.5 text-rose-400" />}
+                    className="text-xs text-rose-400 border-rose-500/30 hover:bg-rose-950/30"
+                  >
+                    Cancel Order & Restock
+                  </Button>
+                )}
+
                 <a
                   href={formatWhatsAppUrl(selectedOrder.customerPhone, selectedOrder.orderNumber)}
                   target="_blank"
@@ -501,6 +529,19 @@ export default function AdminOrdersPage() {
                 onChange={(e) => setStatusNote(e.target.value)}
                 className="text-xs"
               />
+
+              {newStatus === "CANCELLED" && selectedOrder.status !== "CANCELLED" && (
+                <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-center gap-2.5">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                  <div>
+                    <strong>Automatic Stock Restock:</strong> Changing status to <strong>CANCELLED</strong> will automatically add back{" "}
+                    <span className="font-bold underline">
+                      {selectedOrder.items.reduce((acc, it) => acc + it.quantity, 0)} reserved item(s)
+                    </span>{" "}
+                    to the product inventory.
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-end">
                 <Button

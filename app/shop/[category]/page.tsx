@@ -19,10 +19,10 @@ export async function generateMetadata({ params }: CategoryPageProps) {
     where: { slug: params.category },
   });
 
-  if (!cat) return { title: "Category Not Found | CARE SPARE PARTS" };
+  if (!cat) return { title: "Category Not Found | CARS SPARE PARTS" };
 
   return {
-    title: `${cat.name} Auto Parts | CARE SPARE PARTS`,
+    title: `${cat.name} Auto Parts | CARS SPARE PARTS`,
     description:
       cat.description ||
       `Buy premium and OEM ${cat.name} replacement parts for your vehicle with verified fitment.`,

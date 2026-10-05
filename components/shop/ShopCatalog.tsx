@@ -472,7 +472,7 @@ export function ShopCatalog({
                 onClick: () =>
                   window.open(
                     `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-                      "Hello CARE SPARE PARTS! I am searching for a specific car part that wasn't found in your catalog. Can you assist me?"
+                      "Hello CARS SPARE PARTS! I am searching for a specific car part that wasn't found in your catalog. Can you assist me?"
                     )}`,
                     "_blank"
                   ),

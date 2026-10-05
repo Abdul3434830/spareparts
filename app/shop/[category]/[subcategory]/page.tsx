@@ -21,10 +21,10 @@ export async function generateMetadata({ params }: SubcategoryPageProps) {
     include: { parent: true },
   });
 
-  if (!subcat) return { title: "Subcategory Not Found | CARE SPARE PARTS" };
+  if (!subcat) return { title: "Subcategory Not Found | CARS SPARE PARTS" };
 
   return {
-    title: `${subcat.name} (${subcat.parent?.name || "Spare Parts"}) | CARE SPARE PARTS`,
+    title: `${subcat.name} (${subcat.parent?.name || "Spare Parts"}) | CARS SPARE PARTS`,
     description:
       subcat.description ||
       `Find the exact ${subcat.name} parts for your vehicle with verified fitment and fast delivery.`,

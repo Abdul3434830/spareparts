@@ -37,7 +37,6 @@ export interface ProductDetailProps {
     oemNumbers: string[];
     price: number;
     salePrice?: number | null;
-    wholesalePrice?: number | null;
     type: string;
     condition: string;
     warranty?: string | null;
@@ -117,7 +116,7 @@ export function ProductDetailView({ product }: ProductDetailProps) {
 
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923001234567";
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Hello CARE SPARE PARTS! 🚗\nI have a question about this part:\n\n*${product.name}*\nPart / SKU: ${product.partNumber}\nPrice: PKR ${currentPrice.toLocaleString()}\n${
+    `Hello CARS SPARE PARTS! 🚗\nI have a question about this part:\n\n*${product.name}*\nPart / SKU: ${product.partNumber}\nPrice: PKR ${currentPrice.toLocaleString()}\n${
       typeof window !== "undefined" ? window.location.href : ""
     }\n\nCould you please assist me with availability & fitment?`
   )}`;
@@ -507,7 +506,7 @@ export function ProductDetailView({ product }: ProductDetailProps) {
               <div className="flex justify-between py-2 border-b border-brand-zinc-800">
                 <span className="text-brand-zinc-400">Manufacturer / Brand</span>
                 <span className="font-semibold text-brand-white">
-                  {product.brand?.name || "CARE Quality"}
+                  {product.brand?.name || "CARS Quality"}
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b border-brand-zinc-800">
@@ -574,7 +573,7 @@ export function ProductDetailView({ product }: ProductDetailProps) {
         {activeTab === "warranty" && (
           <div className="p-6 rounded-2xl bg-brand-zinc border border-brand-zinc-800 space-y-4 text-xs text-brand-zinc-300">
             <h4 className="font-heading font-bold text-sm text-brand-white uppercase">
-              CARE SPARE PARTS Guarantee & Returns Guidelines
+              CARS SPARE PARTS Guarantee & Returns Guidelines
             </h4>
             <div className="space-y-2 leading-relaxed">
               <p>

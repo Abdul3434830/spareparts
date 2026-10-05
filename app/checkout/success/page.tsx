@@ -7,8 +7,8 @@ import { Spinner } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Order Placed Successfully | CARE SPARE PARTS",
-  description: "Your auto parts order has been placed. Thank you for shopping with CARE SPARE PARTS.",
+  title: "Order Placed Successfully | CARS SPARE PARTS",
+  description: "Your auto parts order has been placed. Thank you for shopping with CARS SPARE PARTS.",
 };
 
 export default function CheckoutSuccessPage() {

@@ -12,11 +12,19 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "CARE SPARE PARTS | The Right Part. The Right Fit.",
-    template: "%s | CARE SPARE PARTS",
+    default: "CARS SPARE PARTS | The Right Part. The Right Fit.",
+    template: "%s | CARS SPARE PARTS",
   },
   description:
-    "Genuine, OEM and performance parts for your car. 100% vehicle fitment guarantee, express nationwide courier delivery, and wholesale supply across Pakistan.",
+    "Genuine, OEM and performance parts for your car. 100% vehicle fitment guarantee, express nationwide courier delivery, and verified payments across Pakistan.",
+  icons: {
+    icon: [
+      { url: "/care-icon.svg", type: "image/svg+xml" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/care-icon.svg",
+    apple: "/care-icon.svg",
+  },
   keywords: [
     "auto spare parts",
     "car parts Pakistan",
@@ -27,23 +35,23 @@ export const metadata: Metadata = {
     "Toyota spare parts",
     "Honda spare parts",
     "vehicle fitment",
-    "CARE SPARE PARTS",
+    "CARS SPARE PARTS",
   ],
-  authors: [{ name: "CARE SPARE PARTS" }],
-  creator: "CARE SPARE PARTS",
-  metadataBase: new URL(process.env.NEXTAUTH_URL || "https://carespareparts.com"),
+  authors: [{ name: "CARS SPARE PARTS" }],
+  creator: "CARS SPARE PARTS",
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "https://carsspareparts.com"),
   openGraph: {
     type: "website",
     locale: "en_PK",
     url: "/",
-    siteName: "CARE SPARE PARTS",
-    title: "CARE SPARE PARTS | The Right Part. The Right Fit.",
+    siteName: "CARS SPARE PARTS",
+    title: "CARS SPARE PARTS | The Right Part. The Right Fit.",
     description:
       "Genuine, OEM and performance parts for your car. 100% vehicle fitment guarantee and nationwide delivery.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "CARE SPARE PARTS | The Right Part. The Right Fit.",
+    title: "CARS SPARE PARTS | The Right Part. The Right Fit.",
     description:
       "Genuine, OEM and performance parts for your car. 100% vehicle fitment guarantee and nationwide delivery.",
   },

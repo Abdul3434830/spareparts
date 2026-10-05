@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { Logo } from "@/components/layout/Logo";
 
 export default function AuthLayout({
   children,
@@ -28,13 +29,9 @@ export default function AuthLayout({
 
       {/* Main Form Container */}
       <div className="max-w-md w-full mx-auto my-8 z-10">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
-            <h1 className="text-2xl sm:text-3xl font-heading font-extrabold tracking-tight text-brand-white">
-              CARE <span className="text-brand-amber">SPARE PARTS</span>
-            </h1>
-          </Link>
-          <p className="text-xs uppercase tracking-widest text-brand-zinc-400 font-semibold mt-1">
+        <div className="flex flex-col items-center justify-center text-center mb-8">
+          <Logo href="/" />
+          <p className="text-xs uppercase tracking-widest text-brand-zinc-400 font-semibold mt-3">
             THE RIGHT PART. THE RIGHT FIT.
           </p>
         </div>
@@ -46,7 +43,7 @@ export default function AuthLayout({
 
       {/* Footer */}
       <div className="max-w-md w-full mx-auto text-center text-xs text-brand-zinc-500 z-10">
-        &copy; {new Date().getFullYear()} CARE SPARE PARTS. All rights reserved.
+        &copy; {new Date().getFullYear()} CARS SPARE PARTS. All rights reserved.
       </div>
     </div>
   );

@@ -46,13 +46,7 @@ export default async function AccountLayout({
                   {user.name || "Customer Account"}
                 </h1>
                 <Badge
-                  variant={
-                    user.role === "ADMIN"
-                      ? "amber"
-                      : user.role === "WHOLESALE"
-                      ? "purple"
-                      : "zinc"
-                  }
+                  variant={user.role === "ADMIN" ? "amber" : "zinc"}
                   className="uppercase font-mono text-[10px]"
                 >
                   {user.role}

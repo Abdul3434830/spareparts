@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 
-type Role = "CUSTOMER" | "WHOLESALE" | "ADMIN";
+type Role = "CUSTOMER" | "ADMIN";
 
 export const authConfig = {
   pages: {

@@ -1,4 +1,4 @@
-# CARE SPARE PARTS
+# CARS SPARE PARTS
 
 > **TAGLINE**: THE RIGHT PART. THE RIGHT FIT.  
 > **SUBHEADING**: Genuine, OEM and performance parts for your car.
@@ -9,7 +9,7 @@ A full-stack, enterprise-grade automotive spare parts e-commerce and fitment pla
 
 ## Brand Identity & Aesthetic
 
-- **Name**: CARE SPARE PARTS
+- **Name**: CARS SPARE PARTS
 - **Color Palette**:
   - `#0A0A0A` (Deep Black Background)
   - `#F59E0B` (Amber Action & Accent)
@@ -31,7 +31,7 @@ A full-stack, enterprise-grade automotive spare parts e-commerce and fitment pla
 | Styling | Tailwind CSS | Custom design tokens and responsive breakpoints |
 | Global Client State | Zustand (with localStorage persistence) | High performance state management for Cart, Garage, and Wishlist |
 | Database & ORM | Neon Postgres + Prisma ORM | Serverless Postgres with pooled connections & relational schema |
-| Authentication | Auth.js v5 (NextAuth beta) | Role-based edge-safe route guards (`ADMIN`, `CUSTOMER`, `WHOLESALE`) |
+| Authentication | Auth.js v5 (NextAuth beta) | Role-based edge-safe route guards (`ADMIN`, `CUSTOMER`) |
 | Media Storage | Vercel Blob | Direct client-side WebP compressed image uploads |
 | Vehicle Fitment Engine | Custom Cascading Matcher | Make > Model > Year > Engine cascading filters with chassis VIN helper |
 
@@ -42,17 +42,16 @@ A full-stack, enterprise-grade automotive spare parts e-commerce and fitment pla
 - **Phase 0: Scaffold**: Next.js 14 project, TypeScript, Tailwind, directory structure (`chore: scaffold`).
 - **Phase 1: Design System**: Dark theme tokens, Button, Badge, Card, Input, Select, Modal, Spinner, Skeleton, EmptyState (`feat: design system`).
 - **Phase 2: Database Schema & Seed**: Complete Prisma schema with 18 models, idempotent seed for 12 categories & admin user (`feat: database schema`).
-- **Phase 3: Authentication**: NextAuth v5 credentials provider, registration with Customer & Wholesale tabs, role-based middleware (`feat: auth`).
-- **Phase 4: Admin Dashboard**: Full admin console with live DB stats, catalog CRUD with client-side WebP compression, margin calculator, CSV bulk import/export, courier tracking assignment, and wholesale review (`feat: admin dashboard`).
+- **Phase 3: Authentication**: NextAuth v5 credentials provider, customer registration, role-based middleware (`feat: auth`).
+- **Phase 4: Admin Dashboard**: Full admin console with live DB stats, catalog CRUD with client-side WebP compression, margin calculator, CSV bulk import/export, and courier tracking assignment (`feat: admin dashboard`).
 - **Phase 5: Layout Architecture**: Responsive Header with wordmark, search, My Garage active vehicle pill, cart counter, 4-column Footer, MobileNav bottom bar, and vehicle-aware WhatsApp button (`feat: layout`).
 - **Phase 6: Vehicle Fitment Engine**: Cascading `VehicleSelector`, `MyGarageModal`, `FitmentBadge` (real-time green/red indicator), `CompatibilityTable`, and `VINHelper` (`feat: fitment`).
 - **Phase 7: Homepage**: Hero with vehicle selector, trust bar, 12 category grid, brand showcase, deals, verified reviews, technical guides, and hard-to-find sourcing banner (`feat: homepage`).
 - **Phase 8: Shop Pages**: `/shop`, `/shop/[category]`, `/shop/[category]/[subcategory]` with vehicle fitment filter, category hierarchy, brand multi-select, and classification filters (`feat: shop pages`).
 - **Phase 9: Product Detail Page**: `/products/[slug]` with multi-image gallery, fitment confirmation, pricing breakdown, full technical specs, return policy, and JSON-LD schema (`feat: product page`).
 - **Phase 10: Search Page**: `/search` with debounced search across part SKU, OEM interchange, name, brand, and vehicle model (`feat: search`).
-- **Phase 11: Cart & Checkout**: `/cart` with free delivery progress bar, `/checkout` with Pakistani city dropdown, VIN verification checkbox, Cash on Delivery (COD) & Direct Bank Transfer options, and `/checkout/success` (`feat: checkout`).
+- **Phase 11: Cart & Checkout**: `/cart` with free delivery progress bar, `/checkout` with Pakistani city dropdown, VIN verification checkbox, Meezan Bank, JazzCash & Easypaisa manual payment options, and `/checkout/success` (`feat: checkout`).
 - **Phase 12: Customer Accounts**: `/account` dashboard, `/account/orders` order history with courier tracking, `/account/garage` saved vehicles, and `/account/wishlist` (`feat: accounts`).
-- **Phase 13: Wholesale & B2B**: `/wholesale` and `/quotes` with B2B discount tiers, fleet inquiry form, and WhatsApp manager integration (`feat: wholesale`).
 - **Phase 14: Search Engine Optimization**: Dynamic `sitemap.ts`, `robots.ts`, OpenGraph metadata, and structured data (`feat: seo`).
 - **Phase 15: Polish & Accessibility**: Branded `not-found.tsx`, global `error.tsx` boundary, animated `loading.tsx`, and WCAG contrast standards (`feat: polish`).
 - **Phase 16: Deployment**: Vercel configuration, environment variable templates, and comprehensive `DEPLOY.md` (`feat: deployment`).

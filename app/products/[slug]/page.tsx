@@ -22,18 +22,18 @@ export async function generateMetadata({ params }: ProductPageProps) {
   });
 
   if (!product) {
-    return { title: "Product Not Found | CARE SPARE PARTS" };
+    return { title: "Product Not Found | CARS SPARE PARTS" };
   }
 
   const primaryImage = product.images.find((img) => img.isPrimary)?.url || product.images[0]?.url;
 
   return {
-    title: `${product.name} (${product.partNumber}) | CARE SPARE PARTS`,
+    title: `${product.name} (${product.partNumber}) | CARS SPARE PARTS`,
     description: `Buy ${product.name} (SKU: ${product.partNumber}) by ${
       product.brand?.name || "Genuine Quality"
     }. Guaranteed vehicle fitment, express courier delivery across Pakistan.`,
     openGraph: {
-      title: `${product.name} | CARE SPARE PARTS`,
+      title: `${product.name} | CARS SPARE PARTS`,
       description: `SKU: ${product.partNumber}. Genuine, OEM and high performance replacement parts.`,
       images: primaryImage ? [{ url: primaryImage }] : [],
     },
@@ -89,16 +89,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
     "@type": "Product",
     name: product.name,
     image: product.images.map((img) => img.url),
-    description: `Auto spare part SKU ${product.partNumber} by ${product.brand?.name || "CARE Quality"}`,
+    description: `Auto spare part SKU ${product.partNumber} by ${product.brand?.name || "CARS Quality"}`,
     sku: product.partNumber,
     mpn: product.partNumber,
     brand: {
       "@type": "Brand",
-      name: product.brand?.name || "CARE SPARE PARTS",
+      name: product.brand?.name || "CARS SPARE PARTS",
     },
     offers: {
       "@type": "Offer",
-      url: `https://carespareparts.com/products/${product.slug}`,
+      url: `https://carsspareparts.com/products/${product.slug}`,
       priceCurrency: "PKR",
       price: product.salePrice ?? product.price,
       availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",

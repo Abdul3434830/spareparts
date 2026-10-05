@@ -32,7 +32,7 @@ export function SuccessClient() {
       ? "JazzCash"
       : method;
 
-  const whatsappMessage = `Assalam-o-Alaikum CARE SPARE PARTS! 🚗
+  const whatsappMessage = `Assalam-o-Alaikum CARS SPARE PARTS! 🚗
 I have placed Order #${orderNumber}${total ? ` for PKR ${Number(total).toLocaleString()}` : ""}.
 Payment Method: ${methodName}
 Transaction ID: ${tid || "Sent in receipt"}

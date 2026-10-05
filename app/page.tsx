@@ -34,7 +34,6 @@ export default async function HomePage() {
     featuredProducts,
     bestsellers,
     deals,
-    brands,
     makes,
     reviews,
     blogPosts,
@@ -80,10 +79,6 @@ export default async function HomePage() {
       take: 8,
       orderBy: { createdAt: "desc" },
     }),
-    db.brand.findMany({
-      take: 12,
-      orderBy: { name: "asc" },
-    }),
     db.make.findMany({
       take: 12,
       orderBy: { name: "asc" },
@@ -118,7 +113,7 @@ export default async function HomePage() {
               </div>
 
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-heading font-extrabold tracking-tight text-brand-white">
-                CARE <span className="text-brand-amber">SPARE PARTS</span>
+                CARS <span className="text-brand-amber">SPARE PARTS</span>
               </h1>
 
               <p className="text-lg sm:text-2xl font-heading font-semibold text-brand-zinc-300 tracking-wider uppercase">
@@ -389,58 +384,6 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* SHOP BY BRAND */}
-        {brands.length > 0 && (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-              <div>
-                <div className="text-xs font-semibold text-brand-amber uppercase tracking-wider">
-                  Trusted Manufacturers
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-white">
-                  Featured Component Brands
-                </h2>
-              </div>
-              <Link
-                href="/brands"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-amber hover:text-brand-amber-400 transition-colors"
-              >
-                <span>View All Brands</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {brands.map((b) => (
-                <Link
-                  key={b.id}
-                  href={`/shop?brand=${b.slug}`}
-                  className="p-4 rounded-xl bg-brand-zinc border border-brand-zinc-800 hover:border-brand-zinc-700 flex flex-col items-center justify-center text-center transition-all group"
-                >
-                  {b.logo ? (
-                    <div className="relative w-16 h-8 mb-2">
-                      <Image
-                        src={b.logo}
-                        alt={b.name}
-                        fill
-                        className="object-contain filter grayscale group-hover:grayscale-0 transition-all"
-                      />
-                    </div>
-                  ) : (
-                    <div className="font-heading font-bold text-sm text-brand-white group-hover:text-brand-amber transition-colors">
-                      {b.name}
-                    </div>
-                  )}
-                  {b.country && (
-                    <span className="text-[10px] text-brand-zinc-500 uppercase font-mono mt-1">
-                      {b.country}
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* VERIFIED REVIEWS (Only rendered if reviews exist in db) */}
         {reviews.length > 0 && (
@@ -558,12 +501,12 @@ export default async function HomePage() {
                 Can&apos;t find your part number?
               </h2>
               <p className="text-sm sm:text-base text-brand-zinc-300 leading-relaxed">
-                CARE SPARE PARTS sources rare, discontinued, and European/Japanese imports directly from overseas distribution hubs. Send us your chassis or part number for an instant quote.
+                CARS SPARE PARTS sources rare, discontinued, and European/Japanese imports directly from overseas distribution hubs. Send us your chassis or part number for an instant quote.
               </p>
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <a
                   href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-                    "Hello CARE SPARE PARTS! I am looking for a hard-to-find part. Can you help me source it?"
+                    "Hello CARS SPARE PARTS! I am looking for a hard-to-find part. Can you help me source it?"
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

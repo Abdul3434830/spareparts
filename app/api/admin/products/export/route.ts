@@ -27,7 +27,6 @@ export async function GET() {
     "Condition",
     "Price",
     "SalePrice",
-    "WholesalePrice",
     "SupplierPrice",
     "Stock",
     "Position",
@@ -46,7 +45,6 @@ export async function GET() {
     p.condition,
     p.price,
     p.salePrice ?? "",
-    p.wholesalePrice ?? "",
     p.supplierPrice,
     p.stock,
     `"${(p.position || "").replace(/"/g, '""')}"`,
@@ -61,7 +59,7 @@ export async function GET() {
     status: 200,
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="care-spare-parts-catalog-${Date.now()}.csv"`,
+      "Content-Disposition": `attachment; filename="cars-spare-parts-catalog-${Date.now()}.csv"`,
     },
   });
 }

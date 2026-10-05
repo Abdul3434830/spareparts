@@ -154,7 +154,7 @@ export default async function AdminOverviewPage() {
               {pendingOrdersCount} Orders
             </div>
             <p className="text-xs text-brand-zinc-500 mt-1">
-              {pendingQuotesCount} wholesale quote requests
+              {pendingQuotesCount} custom sourcing requests
             </p>
           </CardContent>
         </Card>

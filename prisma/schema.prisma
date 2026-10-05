@@ -1,4 +1,4 @@
-// Prisma schema for CARE SPARE PARTS
+// Prisma schema for CARS SPARE PARTS
 // The Right Part. The Right Fit.
 
 generator client {

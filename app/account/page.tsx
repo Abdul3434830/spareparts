@@ -40,7 +40,7 @@ export default async function AccountDashboardPage() {
           <div className="text-2xl font-heading font-extrabold text-brand-white">
             {orders.length}
           </div>
-          <div className="text-[11px] text-brand-zinc-500">Orders placed on CARE SPARE PARTS</div>
+          <div className="text-[11px] text-brand-zinc-500">Orders placed on CARS SPARE PARTS</div>
         </div>
 
         <div className="p-5 rounded-2xl bg-brand-zinc border border-brand-zinc-800 space-y-2">

@@ -75,7 +75,6 @@ export default function EditProductPage() {
   // Pricing
   const [price, setPrice] = useState("");
   const [salePrice, setSalePrice] = useState("");
-  const [wholesalePrice, setWholesalePrice] = useState("");
   const [supplierPrice, setSupplierPrice] = useState("");
 
   // Inventory & Specs
@@ -202,7 +201,6 @@ export default function EditProductPage() {
 
           setPrice(p.price?.toString() || "");
           setSalePrice(p.salePrice ? p.salePrice.toString() : "");
-          setWholesalePrice(p.wholesalePrice ? p.wholesalePrice.toString() : "");
           setSupplierPrice(p.supplierPrice ? p.supplierPrice.toString() : "0");
 
           setStock(p.stock?.toString() || "0");
@@ -362,7 +360,6 @@ export default function EditProductPage() {
         warranty: warranty || null,
         price: parseFloat(price),
         salePrice: salePrice ? parseFloat(salePrice) : null,
-        wholesalePrice: wholesalePrice ? parseFloat(wholesalePrice) : null,
         supplierPrice: supplierPrice ? parseFloat(supplierPrice) : 0,
         stock: parseInt(stock, 10) || 0,
         lowStockThreshold: parseInt(lowStockThreshold, 10) || 5,
@@ -607,14 +604,6 @@ export default function EditProductPage() {
                 type="number"
                 value={salePrice}
                 onChange={(e) => setSalePrice(e.target.value)}
-                className="text-xs"
-              />
-
-              <Input
-                label="Wholesale Price (PKR)"
-                type="number"
-                value={wholesalePrice}
-                onChange={(e) => setWholesalePrice(e.target.value)}
                 className="text-xs"
               />
 

@@ -90,7 +90,7 @@ function RegisterForm() {
           Create an Account
         </h2>
         <p className="text-xs sm:text-sm text-brand-zinc-400">
-          Join CARE SPARE PARTS for precision fitment and fast shipping
+          Join CARS SPARE PARTS for precision fitment and fast shipping
         </p>
       </div>
 

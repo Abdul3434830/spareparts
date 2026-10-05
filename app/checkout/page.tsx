@@ -110,7 +110,7 @@ export default function CheckoutPage() {
     try {
       const payload = {
         customerName: fullName.trim(),
-        customerEmail: email.trim() || (session?.user?.email ?? "guest@carespareparts.com"),
+        customerEmail: email.trim() || (session?.user?.email ?? "guest@carsspareparts.com"),
         customerPhone: phone.trim(),
         address: streetAddress.trim(),
         city: city.trim(),
@@ -674,7 +674,7 @@ export default function CheckoutPage() {
             </Button>
 
             <div className="text-[11px] text-brand-zinc-500 text-center leading-relaxed">
-              By placing your order, you agree to CARE SPARE PARTS Terms of Service and Fitment Exchange Policy.
+              By placing your order, you agree to CARS SPARE PARTS Terms of Service and Fitment Exchange Policy.
             </div>
           </div>
         </form>

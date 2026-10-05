@@ -65,7 +65,7 @@ export async function POST(request: Request) {
           orderNumber,
           userId: session?.user?.id || undefined,
           customerName,
-          customerEmail: customerEmail || "customer@carespareparts.com",
+          customerEmail: customerEmail || "customer@carsspareparts.com",
           customerPhone,
           shippingAddress: {
             street: address,

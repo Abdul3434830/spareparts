@@ -10,7 +10,7 @@ import { Spinner } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Search Spare Parts | CARE SPARE PARTS",
+  title: "Search Spare Parts | CARS SPARE PARTS",
   description:
     "Search genuine, OEM and aftermarket auto spare parts by SKU, part number, car make, or model. 100% fitment guarantee.",
 };

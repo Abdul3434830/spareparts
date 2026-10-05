@@ -44,7 +44,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   const shippingAddr = (order.shippingAddress as Record<string, string>) || {};
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || PAYMENT_CONFIG.whatsappNumber;
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Hello CARE SPARE PARTS! 🚗\nI am inquiring about order #${order.orderNumber}.\nCould you provide an update on delivery status?`
+    `Hello CARS SPARE PARTS! 🚗\nI am inquiring about order #${order.orderNumber}.\nCould you provide an update on delivery status?`
   )}`;
 
   return (

@@ -68,6 +68,9 @@ export async function PATCH(req: Request) {
 
     const currentOrder = await db.order.findUnique({
       where: { id },
+      include: {
+        items: true,
+      },
     });
 
     if (!currentOrder) {
@@ -79,25 +82,73 @@ export async function PATCH(req: Request) {
     if (paymentStatus) dataToUpdate.paymentStatus = paymentStatus;
     if (trackingNumber !== undefined) dataToUpdate.trackingNumber = trackingNumber;
 
-    const updated = await db.order.update({
-      where: { id },
-      data: {
-        ...dataToUpdate,
-        ...(status && status !== currentOrder.status
-          ? {
-              statusHistory: {
-                create: {
-                  status,
-                  note: note || `Status changed from ${currentOrder.status} to ${status} by admin`,
+    const updated = await db.$transaction(async (tx) => {
+      // Stock restoration on cancellation / re-reservation on reactivation
+      if (status && status !== currentOrder.status) {
+        if (currentOrder.status !== "CANCELLED" && status === "CANCELLED") {
+          // Order was active, now CANCELLED -> restore stock for each item
+          for (const item of currentOrder.items) {
+            if (item.productId) {
+              await tx.product.update({
+                where: { id: item.productId },
+                data: {
+                  stock: {
+                    increment: item.quantity,
+                  },
                 },
-              },
+              });
             }
-          : {}),
-      },
-      include: {
-        items: true,
-        statusHistory: { orderBy: { createdAt: "desc" } },
-      },
+          }
+        } else if (currentOrder.status === "CANCELLED" && status !== "CANCELLED") {
+          // Order was previously CANCELLED, now re-activated -> decrement stock again
+          for (const item of currentOrder.items) {
+            if (item.productId) {
+              await tx.product.update({
+                where: { id: item.productId },
+                data: {
+                  stock: {
+                    decrement: item.quantity,
+                  },
+                },
+              });
+            }
+          }
+        }
+      }
+
+      let timelineNote = note;
+      if (!timelineNote && status && status !== currentOrder.status) {
+        if (status === "CANCELLED") {
+          const totalUnits = currentOrder.items.reduce((acc, it) => acc + it.quantity, 0);
+          timelineNote = `Order cancelled by admin. Automatically restored ${totalUnits} unit(s) of reserved stock back to inventory.`;
+        } else if (currentOrder.status === "CANCELLED") {
+          const totalUnits = currentOrder.items.reduce((acc, it) => acc + it.quantity, 0);
+          timelineNote = `Order re-activated from CANCELLED to ${status}. Re-reserved ${totalUnits} unit(s) from inventory.`;
+        } else {
+          timelineNote = `Status changed from ${currentOrder.status} to ${status} by admin`;
+        }
+      }
+
+      return await tx.order.update({
+        where: { id },
+        data: {
+          ...dataToUpdate,
+          ...(status && status !== currentOrder.status
+            ? {
+                statusHistory: {
+                  create: {
+                    status,
+                    note: timelineNote,
+                  },
+                },
+              }
+            : {}),
+        },
+        include: {
+          items: true,
+          statusHistory: { orderBy: { createdAt: "desc" } },
+        },
+      });
     });
 
     return NextResponse.json(updated);

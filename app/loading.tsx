@@ -9,7 +9,7 @@ export default function Loading() {
       </div>
       <div className="space-y-1">
         <div className="font-heading font-bold text-sm tracking-wider uppercase text-brand-white">
-          CARE <span className="text-brand-amber">SPARE PARTS</span>
+          CARS <span className="text-brand-amber">SPARE PARTS</span>
         </div>
         <div className="text-[11px] text-brand-zinc-500 font-mono">
           Loading catalog & vehicle fitment...

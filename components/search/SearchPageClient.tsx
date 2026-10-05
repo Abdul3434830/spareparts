@@ -220,7 +220,7 @@ export function SearchPageClient() {
             onClick: () =>
               window.open(
                 `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-                  `Hello CARE SPARE PARTS! I searched for: "${query}" but could not find it. Could you check if you have it in stock or can source it?`
+                  `Hello CARS SPARE PARTS! I searched for: "${query}" but could not find it. Could you check if you have it in stock or can source it?`
                 )}`,
                 "_blank"
               ),
