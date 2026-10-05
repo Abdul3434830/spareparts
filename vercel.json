@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "prisma generate && prisma db push --accept-data-loss && next build",
+  "buildCommand": "prisma generate && prisma db push --accept-data-loss && tsx prisma/seed.ts && next build",
   "functions": {
     "app/**/*.ts": {
       "maxDuration": 30

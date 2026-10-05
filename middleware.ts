@@ -1,24 +1,12 @@
+import NextAuth from "next-auth";
+import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "@auth/core/jwt";
 
-export async function middleware(req: NextRequest) {
-  const hasSecureCookie = req.cookies.has("__Secure-authjs.session-token");
-  const activeCookieName = hasSecureCookie
-    ? "__Secure-authjs.session-token"
-    : "authjs.session-token";
+const { auth } = NextAuth(authConfig);
 
-  const token = await getToken({
-    req: {
-      headers: req.headers,
-    } as any,
-    secret: process.env.AUTH_SECRET,
-    cookieName: activeCookieName,
-    salt: activeCookieName,
-  });
-
-  const isLoggedIn = !!token;
-  const userRole = token?.role as string | undefined;
+export default auth((req) => {
+  const isLoggedIn = !!req.auth?.user;
+  const userRole = req.auth?.user?.role as string | undefined;
 
   const { nextUrl } = req;
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
@@ -26,7 +14,7 @@ export async function middleware(req: NextRequest) {
   const isAuthRoute =
     nextUrl.pathname === "/login" || nextUrl.pathname === "/register";
 
-  // 1. Protect Admin Routes (requires ADMIN role)
+  // 1. Protect Admin Routes (requires logged-in user with ADMIN role)
   if (isAdminRoute) {
     if (!isLoggedIn) {
       const redirectUrl = new URL("/login", nextUrl.origin);
@@ -37,6 +25,7 @@ export async function middleware(req: NextRequest) {
       // Forbidden: redirect to home
       return NextResponse.redirect(new URL("/", nextUrl.origin));
     }
+    return NextResponse.next();
   }
 
   // 2. Protect Account Routes (requires logged-in user)
@@ -46,16 +35,20 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // 3. Redirect authenticated users away from Login/Register
+  // 3. Redirect authenticated users away from Login/Register ONLY IF they are NOT visiting with a callbackUrl
+  // This strictly prevents infinite redirect loops between /admin and /login?callbackUrl=/admin
   if (isAuthRoute && isLoggedIn) {
-    if (userRole === "ADMIN") {
-      return NextResponse.redirect(new URL("/admin", nextUrl.origin));
+    const callbackUrl = nextUrl.searchParams.get("callbackUrl");
+    if (!callbackUrl || callbackUrl.startsWith("/login") || callbackUrl.startsWith("/register")) {
+      if (userRole === "ADMIN") {
+        return NextResponse.redirect(new URL("/admin", nextUrl.origin));
+      }
+      return NextResponse.redirect(new URL("/account", nextUrl.origin));
     }
-    return NextResponse.redirect(new URL("/account", nextUrl.origin));
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ["/admin/:path*", "/account/:path*", "/login", "/register"],
