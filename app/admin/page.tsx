@@ -27,7 +27,6 @@ export default async function AdminOverviewPage() {
     totalProducts,
     lowStockCount,
     pendingOrdersCount,
-    pendingQuotesCount,
     recentOrders,
     lowStockProducts,
   ] = await Promise.all([
@@ -38,7 +37,6 @@ export default async function AdminOverviewPage() {
     db.product.count(),
     db.product.count({ where: { stock: { lte: 5 } } }),
     db.order.count({ where: { status: "PENDING" } }),
-    db.quoteRequest.count({ where: { status: "PENDING" } }),
     db.order.findMany({
       orderBy: { createdAt: "desc" },
       take: 5,
@@ -145,7 +143,7 @@ export default async function AdminOverviewPage() {
         <Card hover>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-brand-zinc-400 uppercase tracking-wider">
-              Pending Action
+              Pending Orders
             </CardTitle>
             <Truck className="w-4 h-4 text-brand-amber" />
           </CardHeader>
@@ -154,7 +152,7 @@ export default async function AdminOverviewPage() {
               {pendingOrdersCount} Orders
             </div>
             <p className="text-xs text-brand-zinc-500 mt-1">
-              {pendingQuotesCount} custom sourcing requests
+              Awaiting confirmation & dispatch
             </p>
           </CardContent>
         </Card>
