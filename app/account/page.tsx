@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { Package, Wrench, Heart, Clock, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Package, Heart, Clock, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button, Badge } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ export default async function AccountDashboardPage() {
   const session = await auth();
   const userId = session?.user?.id;
 
-  const [orders, vehiclesCount] = userId
+  const [orders, wishlistCount] = userId
     ? await Promise.all([
         db.order.findMany({
           where: { userId },
@@ -20,7 +20,7 @@ export default async function AccountDashboardPage() {
             items: true,
           },
         }),
-        db.savedVehicle.count({
+        db.wishlistItem.count({
           where: { userId },
         }),
       ])
@@ -56,14 +56,14 @@ export default async function AccountDashboardPage() {
 
         <div className="p-5 rounded-2xl bg-brand-zinc border border-brand-zinc-800 space-y-2">
           <div className="flex items-center justify-between text-brand-zinc-400 text-xs">
-            <span>My Garage</span>
-            <Wrench className="w-4 h-4 text-brand-amber" />
+            <span>Saved Wishlist</span>
+            <Heart className="w-4 h-4 text-rose-400" />
           </div>
           <div className="text-2xl font-heading font-extrabold text-brand-white">
-            {vehiclesCount} {vehiclesCount === 1 ? "Vehicle" : "Vehicles"}
+            {wishlistCount} {wishlistCount === 1 ? "Item" : "Items"}
           </div>
           <div className="text-[11px] text-brand-zinc-500">
-            Saved for precision part fitment check
+            Products saved for later
           </div>
         </div>
       </div>
@@ -145,19 +145,19 @@ export default async function AccountDashboardPage() {
       {/* Quick Navigation Panels */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link
-          href="/account/garage"
+          href="/shop"
           className="p-5 rounded-2xl bg-brand-zinc border border-brand-zinc-800 hover:border-brand-amber/50 hover:bg-brand-zinc-800 transition-all flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand-black border border-brand-zinc-700 flex items-center justify-center text-brand-amber">
-              <Wrench className="w-5 h-5" />
+              <Package className="w-5 h-5" />
             </div>
             <div>
               <div className="font-heading font-bold text-sm text-brand-white group-hover:text-brand-amber transition-colors">
-                My Garage
+                Browse Catalog
               </div>
               <div className="text-xs text-brand-zinc-400">
-                Manage your saved vehicles for instant fitment filtering
+                Explore genuine auto parts, braking, engine, and filters
               </div>
             </div>
           </div>

@@ -10,7 +10,7 @@ export function WhatsAppButton() {
 
   const message = activeVehicle
     ? `Hello CARS SPARE PARTS, I need help finding genuine or OEM parts for my ${activeVehicle.year} ${activeVehicle.make} ${activeVehicle.model}${activeVehicle.engine ? ` (${activeVehicle.engine})` : ""}.`
-    : "Hello CARS SPARE PARTS, I would like to inquire about auto parts and verify fitment for my car.";
+    : "Hello CARS SPARE PARTS, I would like to inquire about auto parts for my car.";
 
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
@@ -28,7 +28,7 @@ export function WhatsAppButton() {
       >
         <MessageCircle className="w-5 h-5 fill-current" />
         <span className="hidden sm:inline font-semibold text-xs tracking-wide">
-          Fitment Help on WhatsApp
+          Expert Help on WhatsApp
         </span>
         <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-brand-amber rounded-full animate-ping" />
         <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-brand-amber rounded-full border-2 border-brand-black" />

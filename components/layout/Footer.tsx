@@ -17,10 +17,10 @@ export function Footer() {
             </div>
             <div>
               <div className="font-heading font-bold text-brand-white text-sm">
-                100% Fitment Guarantee
+                100% Genuine Quality
               </div>
               <div className="text-[11px] text-brand-zinc-500">
-                Verified against chassis & engine codes
+                Direct OEM & authentic factory components
               </div>
             </div>
           </div>
@@ -45,10 +45,10 @@ export function Footer() {
             </div>
             <div>
               <div className="font-heading font-bold text-brand-white text-sm">
-                Verified Fitment Returns
+                7-Day Exchange Policy
               </div>
               <div className="text-[11px] text-brand-zinc-500">
-                Hassle-free replacement for verified fits
+                Hassle-free replacement on mechanical parts
               </div>
             </div>
           </div>
@@ -62,7 +62,7 @@ export function Footer() {
                 Expert WhatsApp Help
               </div>
               <div className="text-[11px] text-brand-zinc-500">
-                Send VIN for instant manual verification
+                Instant customer support & part consultation
               </div>
             </div>
           </div>
@@ -138,8 +138,8 @@ export function Footer() {
           <h4 className="font-heading font-bold text-sm text-brand-white">Customer Support</h4>
           <ul className="space-y-2 text-xs">
             <li>
-              <Link href="/account/garage" className="hover:text-brand-amber transition-colors">
-                My Garage Vehicle Match
+              <Link href="/shop" className="hover:text-brand-amber transition-colors">
+                Browse Parts Catalog
               </Link>
             </li>
             <li>
@@ -197,7 +197,7 @@ export function Footer() {
       <div className="border-t border-brand-zinc-800/80 bg-brand-zinc-950 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <div className="p-3.5 rounded-xl bg-brand-zinc-900 border border-brand-zinc-800 text-[11px] text-brand-zinc-400 leading-relaxed">
-            <span className="font-bold text-brand-amber">Returns Policy Note:</span> All electronic and electrical parts (sensors, ECUs, modules, ignition coils) are non-returnable once opened. Fitment returns are accepted within 7 days exclusively when checked against our verified My Garage vehicle matching database.
+            <span className="font-bold text-brand-amber">Returns Policy Note:</span> All electronic and electrical parts (sensors, ECUs, modules, ignition coils) are non-returnable once opened or installed. Mechanical parts are eligible for exchange within 7 days of delivery.
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-brand-zinc-500 pt-2">

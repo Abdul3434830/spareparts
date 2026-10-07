@@ -7,7 +7,6 @@ import { useSession, signOut } from "next-auth/react";
 import {
   Search,
   ShoppingCart,
-  Wrench,
   User,
   Menu,
   X,
@@ -17,9 +16,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
-import { useGarageStore } from "@/store/garage";
 import { Button } from "@/components/ui";
-import { MyGarageModal } from "@/components/fitment/MyGarageModal";
 import { Logo } from "@/components/layout/Logo";
 
 interface CategoryNav {
@@ -41,11 +38,8 @@ export function Header({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [garageOpen, setGarageOpen] = useState(false);
 
   const cartItemsCount = useCartStore((s) => s.getTotalItems());
-  const activeVehicle = useGarageStore((s) => s.activeVehicle);
-  const vehiclesCount = useGarageStore((s) => s.vehicles.length);
 
   useEffect(() => {
     setMounted(true);
@@ -72,7 +66,7 @@ export function Header({
         <div className="mx-auto sm:mx-0 flex items-center gap-4">
           <a
             href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-              "Hello CARS SPARE PARTS, I need help checking part fitment for my car."
+              "Hello CARS SPARE PARTS, I need help with spare parts for my car."
             )}`}
             target="_blank"
             rel="noreferrer"
@@ -129,34 +123,8 @@ export function Header({
           </button>
         </form>
 
-        {/* Right Actions: My Garage, Cart, Account */}
+        {/* Right Actions: Cart, Account */}
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* My Garage Button */}
-          <button
-            type="button"
-            onClick={() => setGarageOpen(true)}
-            className="hidden sm:flex items-center gap-2 p-2 rounded-lg bg-brand-zinc-800/80 hover:bg-brand-zinc-800 border border-brand-zinc-700/80 text-xs text-brand-zinc-200 transition-colors"
-          >
-            <div className="relative">
-              <Wrench className="w-4 h-4 text-brand-amber" />
-              {mounted && activeVehicle && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              )}
-            </div>
-            <div className="text-left">
-              <div className="text-[10px] text-brand-zinc-400 font-semibold uppercase">My Garage</div>
-              <div className="font-semibold text-brand-white max-w-[120px] truncate">
-                {mounted && activeVehicle
-                  ? `${activeVehicle.year} ${activeVehicle.model}`
-                  : mounted && vehiclesCount > 0
-                  ? `${vehiclesCount} Cars`
-                  : "Add Vehicle"}
-              </div>
-            </div>
-          </button>
-
-          <MyGarageModal isOpen={garageOpen} onClose={() => setGarageOpen(false)} />
-
           {/* Cart Icon & Count */}
           <Link
             href="/cart"
@@ -212,12 +180,6 @@ export function Header({
                       className="block px-4 py-2 text-brand-zinc-300 hover:text-brand-white hover:bg-brand-zinc-800"
                     >
                       My Orders
-                    </Link>
-                    <Link
-                      href="/account/garage"
-                      className="block px-4 py-2 text-brand-zinc-300 hover:text-brand-white hover:bg-brand-zinc-800"
-                    >
-                      Saved Vehicles
                     </Link>
                   </div>
 
@@ -350,13 +312,6 @@ export function Header({
               className="block p-2 rounded-lg bg-brand-zinc-800 text-brand-white"
             >
               All Categories & Parts
-            </Link>
-            <Link
-              href="/account/garage"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block p-2 rounded-lg bg-brand-zinc-800 text-brand-white"
-            >
-              My Garage ({mounted ? vehiclesCount : 0} Vehicles)
             </Link>
             <Link
               href="/cart"

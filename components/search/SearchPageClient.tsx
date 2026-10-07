@@ -5,16 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   Search,
   X,
-  Car,
   Package,
-  CheckCircle,
-  HelpCircle,
 } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button, Input, EmptyState } from "@/components/ui";
-import { useGarageStore } from "@/store/garage";
-import { checkFitment, FitmentRecord } from "@/lib/fitment";
-import { MyGarageModal } from "@/components/fitment/MyGarageModal";
+import { FitmentRecord } from "@/lib/fitment";
 
 interface SearchProduct {
   id: string;
@@ -40,11 +35,8 @@ export function SearchPageClient() {
   const [query, setQuery] = useState(initialQuery);
   const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
-  const [fitmentOnly, setFitmentOnly] = useState(false);
-  const [garageOpen, setGarageOpen] = useState(false);
   const [, startTransition] = useTransition();
 
-  const { activeVehicle } = useGarageStore();
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923001234567";
 
   // Perform search
@@ -84,14 +76,7 @@ export function SearchPageClient() {
     }
   };
 
-  // Filter results if fitmentOnly is checked and activeVehicle exists
-  const visibleProducts = products.filter((p) => {
-    if (fitmentOnly && activeVehicle) {
-      const result = checkFitment(p, activeVehicle);
-      return result.status === "fits" || result.status === "universal";
-    }
-    return true;
-  });
+  const visibleProducts = products;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -135,51 +120,7 @@ export function SearchPageClient() {
             Search
           </Button>
         </form>
-
-        {/* Fitment indicator in search header */}
-        <div className="max-w-2xl mx-auto flex flex-wrap items-center justify-between gap-3 pt-2 text-xs">
-          <div className="flex items-center gap-2">
-            {activeVehicle ? (
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-zinc-800 border border-brand-amber/40 text-brand-amber">
-                <Car className="w-3.5 h-3.5" />
-                <span className="font-semibold">
-                  {activeVehicle.year} {activeVehicle.make} {activeVehicle.model}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setGarageOpen(true)}
-                  className="text-brand-zinc-400 hover:text-white underline ml-1"
-                >
-                  Change
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setGarageOpen(true)}
-                className="inline-flex items-center gap-1.5 text-brand-zinc-400 hover:text-brand-amber transition-colors"
-              >
-                <HelpCircle className="w-3.5 h-3.5" />
-                <span>Select your vehicle to filter matching parts</span>
-              </button>
-            )}
-          </div>
-
-          {activeVehicle && (
-            <label className="flex items-center gap-2 cursor-pointer text-brand-zinc-300">
-              <input
-                type="checkbox"
-                checked={fitmentOnly}
-                onChange={(e) => setFitmentOnly(e.target.checked)}
-                className="rounded bg-brand-black border-brand-zinc-700 text-brand-amber focus:ring-brand-amber"
-              />
-              <span>Only show parts that fit my car</span>
-            </label>
-          )}
-        </div>
       </div>
-
-      <MyGarageModal isOpen={garageOpen} onClose={() => setGarageOpen(false)} />
 
       {/* Results Header */}
       {query && !loading && (
@@ -189,12 +130,6 @@ export function SearchPageClient() {
             <span className="text-brand-amber font-semibold">{visibleProducts.length}</span> parts
             found
           </div>
-          {fitmentOnly && activeVehicle && (
-            <div className="text-emerald-400 flex items-center gap-1 font-semibold">
-              <CheckCircle className="w-3.5 h-3.5" />
-              <span>Filtered for {activeVehicle.year} {activeVehicle.model}</span>
-            </div>
-          )}
         </div>
       )}
 

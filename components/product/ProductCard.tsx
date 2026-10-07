@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart, Heart, Check, Eye } from "lucide-react";
 import { Badge, Button } from "@/components/ui";
-import { FitmentBadge } from "@/components/fitment/FitmentBadge";
 import { useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
 import { FitmentRecord } from "@/lib/fitment";
@@ -163,15 +162,6 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
         </Link>
-
-        {/* Fitment Indicator */}
-        <div className="pt-0.5">
-          <FitmentBadge
-            fitments={product.fitments}
-            tags={product.tags}
-            showVehicleName={false}
-          />
-        </div>
 
         {/* Price & Action Bottom */}
         <div className="mt-auto pt-3 border-t border-brand-zinc-800 flex items-center justify-between gap-2">

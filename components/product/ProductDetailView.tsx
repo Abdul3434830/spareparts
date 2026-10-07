@@ -15,18 +15,15 @@ import {
   CheckCircle2,
   Minus,
   Plus,
+  ChevronLeft,
   ChevronRight,
-  Car,
+  Maximize2,
 } from "lucide-react";
 import { Button, Badge } from "@/components/ui";
-import { FitmentBadge } from "@/components/fitment/FitmentBadge";
-import { CompatibilityTable } from "@/components/fitment/CompatibilityTable";
-import { VINHelper } from "@/components/fitment/VINHelper";
-import { MyGarageModal } from "@/components/fitment/MyGarageModal";
+import { ProductImageLightbox } from "@/components/product/ProductImageLightbox";
 import { useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
-import { useGarageStore } from "@/store/garage";
-import { checkFitment, FitmentRecord } from "@/lib/fitment";
+import { FitmentRecord } from "@/lib/fitment";
 
 export interface ProductDetailProps {
   product: {
@@ -68,13 +65,11 @@ export function ProductDetailView({ product }: ProductDetailProps) {
   const router = useRouter();
   const { addItem } = useCartStore();
   const { isInWishlist, toggleWishlist } = useWishlistStore();
-  const { activeVehicle } = useGarageStore();
-
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedToast, setAddedToast] = useState(false);
-  const [garageModalOpen, setGarageModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"specs" | "compatibility" | "warranty" | "reviews">("compatibility");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"specs" | "warranty" | "reviews">("specs");
 
   const images = product.images.length > 0
     ? product.images
@@ -88,7 +83,6 @@ export function ProductDetailView({ product }: ProductDetailProps) {
     : 0;
 
   const inWishlist = isInWishlist(product.id);
-  const fitmentResult = checkFitment(product, activeVehicle);
 
   const handleAddToCart = (redirectCheckout = false) => {
     addItem(
@@ -101,7 +95,7 @@ export function ProductDetailView({ product }: ProductDetailProps) {
         image: images[0]?.url || undefined,
         brandName: product.brand?.name,
         stock: product.stock,
-        fitmentConfirmed: fitmentResult.status === "fits",
+        fitmentConfirmed: true,
       },
       quantity
     );
@@ -118,7 +112,7 @@ export function ProductDetailView({ product }: ProductDetailProps) {
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `Hello CARS SPARE PARTS! 🚗\nI have a question about this part:\n\n*${product.name}*\nPart / SKU: ${product.partNumber}\nPrice: PKR ${currentPrice.toLocaleString()}\n${
       typeof window !== "undefined" ? window.location.href : ""
-    }\n\nCould you please assist me with availability & fitment?`
+    }\n\nCould you please assist me with availability & details?`
   )}`;
 
   return (
@@ -158,9 +152,13 @@ export function ProductDetailView({ product }: ProductDetailProps) {
 
       {/* Main Product Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-        {/* Left Column: Gallery (5 cols) */}
+        {/* Left Column: Gallery (6 cols) */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="relative aspect-square w-full rounded-3xl bg-brand-zinc border border-brand-zinc-800 overflow-hidden shadow-2xl">
+          <div
+            onClick={() => setLightboxOpen(true)}
+            className="group relative aspect-square w-full rounded-3xl bg-brand-zinc border border-brand-zinc-800 overflow-hidden shadow-2xl cursor-zoom-in transition-all"
+            title="Click to view full-screen image gallery"
+          >
             {currentImage ? (
               <Image
                 src={currentImage}
@@ -168,7 +166,7 @@ export function ProductDetailView({ product }: ProductDetailProps) {
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-contain p-4"
+                className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center p-8 text-brand-zinc-600 bg-brand-zinc-950">
@@ -203,15 +201,16 @@ export function ProductDetailView({ product }: ProductDetailProps) {
             {/* Wishlist toggle */}
             <button
               type="button"
-              onClick={() =>
+              onClick={(e) => {
+                e.stopPropagation();
                 toggleWishlist({
                   productId: product.id,
                   name: product.name,
                   partNumber: product.partNumber,
                   price: currentPrice,
                   image: images[0]?.url || undefined,
-                })
-              }
+                });
+              }}
               className={`absolute top-4 right-4 p-3 rounded-full transition-colors z-10 ${
                 inWishlist
                   ? "bg-rose-500 text-white"
@@ -221,41 +220,78 @@ export function ProductDetailView({ product }: ProductDetailProps) {
             >
               <Heart className={`w-5 h-5 ${inWishlist ? "fill-current" : ""}`} />
             </button>
+
+            {/* Navigation Arrows on Main Image (Hover / Touch) */}
+            {images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
+                  }}
+                  aria-label="Previous image"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-brand-black/75 hover:bg-brand-amber hover:text-brand-black text-brand-white border border-brand-zinc-700/80 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all z-10 shadow-lg hover:scale-110 active:scale-95"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImageIndex((prev) => (prev + 1) % images.length);
+                  }}
+                  aria-label="Next image"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-brand-black/75 hover:bg-brand-amber hover:text-brand-black text-brand-white border border-brand-zinc-700/80 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all z-10 shadow-lg hover:scale-110 active:scale-95"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+
+            {/* Image Counter & Enlarge Hint */}
+            <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2">
+              {images.length > 1 && (
+                <div className="px-2.5 py-1 rounded-lg bg-brand-black/75 border border-brand-zinc-800 text-[11px] font-mono text-brand-zinc-300 backdrop-blur-md shadow">
+                  {selectedImageIndex + 1} / {images.length}
+                </div>
+              )}
+            </div>
+
+            <div className="absolute bottom-4 right-4 z-10">
+              <span className="px-3 py-1.5 rounded-xl bg-brand-black/75 border border-brand-zinc-700/80 text-brand-zinc-300 text-xs font-semibold backdrop-blur-md inline-flex items-center gap-1.5 group-hover:bg-brand-amber group-hover:text-brand-black group-hover:border-brand-amber transition-all shadow-lg">
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span>Fullscreen View</span>
+              </span>
+            </div>
           </div>
 
           {/* Thumbnails list */}
           {images.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-brand-zinc-700 scrollbar-track-transparent">
               {images.map((img, idx) => (
                 <button
-                  key={img.id}
+                  key={img.id || idx}
                   type="button"
                   onClick={() => setSelectedImageIndex(idx)}
-                  className={`relative w-20 h-20 rounded-xl bg-brand-zinc border-2 overflow-hidden shrink-0 transition-all ${
+                  className={`relative w-20 h-20 rounded-2xl bg-brand-zinc border-2 overflow-hidden shrink-0 transition-all ${
                     selectedImageIndex === idx
-                      ? "border-brand-amber ring-2 ring-brand-amber/30"
-                      : "border-brand-zinc-800 hover:border-brand-zinc-700 opacity-70 hover:opacity-100"
+                      ? "border-brand-amber ring-2 ring-brand-amber/30 scale-105 shadow-amber"
+                      : "border-brand-zinc-800 hover:border-brand-zinc-700 opacity-60 hover:opacity-100"
                   }`}
+                  aria-label={`Select product image ${idx + 1}`}
                 >
                   <Image
                     src={img.url}
                     alt={`${product.name} thumbnail ${idx + 1}`}
                     fill
+                    sizes="80px"
                     className="object-cover"
                   />
                 </button>
               ))}
             </div>
           )}
-
-          {/* Vehicle VIN verification prompt */}
-          <div className="p-4 rounded-2xl bg-brand-zinc border border-brand-zinc-800 flex items-center justify-between gap-4">
-            <div className="text-xs text-brand-zinc-300">
-              <span className="font-semibold text-brand-white">Need fitment certainty? </span>
-              Our parts specialists check against your VIN chassis number.
-            </div>
-            <VINHelper productName={product.name} partNumber={product.partNumber} />
-          </div>
         </div>
 
         {/* Right Column: Product Info & Actions (7 cols) */}
@@ -275,25 +311,6 @@ export function ProductDetailView({ product }: ProductDetailProps) {
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold text-brand-white tracking-tight leading-tight">
               {product.name}
             </h1>
-
-            {/* Fitment Banner */}
-            <div className="pt-2 flex flex-wrap items-center gap-2">
-              <FitmentBadge
-                fitments={product.fitments}
-                tags={product.tags}
-                onOpenSelector={() => setGarageModalOpen(true)}
-              />
-              {!activeVehicle && (
-                <button
-                  type="button"
-                  onClick={() => setGarageModalOpen(true)}
-                  className="text-xs text-brand-amber hover:underline inline-flex items-center gap-1 font-medium"
-                >
-                  <Car className="w-3.5 h-3.5" />
-                  <span>Match with your car</span>
-                </button>
-              )}
-            </div>
           </div>
 
           {/* Pricing Area */}
@@ -408,7 +425,7 @@ export function ProductDetailView({ product }: ProductDetailProps) {
           <div className="p-4 rounded-2xl bg-brand-zinc/60 border border-brand-zinc-800 space-y-3 text-xs text-brand-zinc-300">
             <div className="flex items-center gap-3">
               <ShieldCheck className="w-4 h-4 text-brand-amber shrink-0" />
-              <span>100% Fitment Guarantee or no-hassle return</span>
+              <span>100% Genuine Quality Guarantee or 7-day return</span>
             </div>
             <div className="flex items-center gap-3">
               <Truck className="w-4 h-4 text-brand-amber shrink-0" />
@@ -441,20 +458,9 @@ export function ProductDetailView({ product }: ProductDetailProps) {
         </div>
       </div>
 
-      {/* Tabs Section: Specifications, Vehicle Compatibility, Warranty, Reviews */}
+      {/* Tabs Section: Specifications, Warranty, Reviews */}
       <div className="space-y-6 pt-8 border-t border-brand-zinc-800">
         <div className="flex items-center gap-4 border-b border-brand-zinc-800 overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => setActiveTab("compatibility")}
-            className={`pb-3 px-1 text-sm font-heading font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
-              activeTab === "compatibility"
-                ? "border-brand-amber text-brand-white"
-                : "border-transparent text-brand-zinc-500 hover:text-brand-zinc-300"
-            }`}
-          >
-            Vehicle Applications ({product.fitments.length})
-          </button>
           <button
             type="button"
             onClick={() => setActiveTab("specs")}
@@ -491,13 +497,6 @@ export function ProductDetailView({ product }: ProductDetailProps) {
             </button>
           )}
         </div>
-
-        {/* Tab 1: Compatibility */}
-        {activeTab === "compatibility" && (
-          <div className="space-y-4">
-            <CompatibilityTable fitments={product.fitments} productName={product.name} />
-          </div>
-        )}
 
         {/* Tab 2: Specs */}
         {activeTab === "specs" && (
@@ -577,7 +576,7 @@ export function ProductDetailView({ product }: ProductDetailProps) {
             </h4>
             <div className="space-y-2 leading-relaxed">
               <p>
-                • <strong className="text-brand-white">Fitment Guarantee:</strong> If our vehicle fitment engine or team confirmed this part for your vehicle and it does not bolt on, you receive an immediate replacement or full refund.
+                • <strong className="text-brand-white">Quality Guarantee:</strong> All components are guaranteed 100% genuine and authentic. 7-day replacement warranty on manufacturing defects.
               </p>
               <p>
                 • <strong className="text-brand-white">Mechanical Exchange:</strong> Uninstalled mechanical components in original packaging can be exchanged within 7 days of delivery.
@@ -619,7 +618,16 @@ export function ProductDetailView({ product }: ProductDetailProps) {
         )}
       </div>
 
-      <MyGarageModal isOpen={garageModalOpen} onClose={() => setGarageModalOpen(false)} />
+      {/* Full-Screen Lightbox Gallery Modal */}
+      <ProductImageLightbox
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        images={images}
+        currentIndex={selectedImageIndex}
+        onSelectIndex={setSelectedImageIndex}
+        productName={product.name}
+        partNumber={product.partNumber}
+      />
     </div>
   );
 }

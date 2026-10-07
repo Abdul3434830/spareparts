@@ -24,6 +24,11 @@ const nextConfig = {
         destination: "/shop",
         permanent: true,
       },
+      {
+        source: "/account/garage",
+        destination: "/account",
+        permanent: true,
+      },
     ];
   },
 };

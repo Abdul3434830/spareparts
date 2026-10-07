@@ -19,7 +19,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
-import { VehicleSelector } from "@/components/fitment/VehicleSelector";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui";
 
@@ -125,16 +124,11 @@ export default async function HomePage() {
               </p>
             </div>
 
-            {/* Cascading Vehicle Selector Widget */}
-            <div className="mt-10 max-w-5xl mx-auto">
-              <VehicleSelector horizontal />
-            </div>
-
             {/* Quick Hero Feature Badges */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-brand-zinc-400">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Zero-Error Fitment Guarantee</span>
+                <span>100% Genuine Quality Guarantee</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -157,10 +151,10 @@ export default async function HomePage() {
               </div>
               <div>
                 <h4 className="font-heading font-bold text-sm text-brand-white">
-                  100% Fitment Guarantee
+                  100% Genuine Auto Parts
                 </h4>
                 <p className="text-xs text-brand-zinc-400 mt-1">
-                  Guaranteed compatibility or return with zero restocking fees.
+                  Authentic OEM & certified aftermarket components with 7-day exchange.
                 </p>
               </div>
             </div>

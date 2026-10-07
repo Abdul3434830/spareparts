@@ -5,7 +5,6 @@ import {
   User,
   Shield,
   Package,
-  Wrench,
   Heart,
   LogOut,
   LayoutDashboard,
@@ -104,14 +103,6 @@ export default async function AccountLayout({
           >
             <Package className="w-4 h-4 text-brand-amber" />
             <span>My Orders</span>
-          </Link>
-
-          <Link
-            href="/account/garage"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-heading font-semibold text-brand-zinc-300 hover:text-brand-white hover:bg-brand-zinc transition-colors whitespace-nowrap"
-          >
-            <Wrench className="w-4 h-4 text-brand-amber" />
-            <span>My Garage</span>
           </Link>
 
           <Link
