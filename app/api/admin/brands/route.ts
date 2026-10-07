@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
@@ -93,6 +94,11 @@ export async function POST(req: Request) {
       },
     });
 
+    revalidatePath("/", "layout");
+    revalidatePath("/brands");
+    revalidatePath("/shop");
+    revalidatePath("/sitemap.xml");
+
     return NextResponse.json(brand, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
@@ -126,6 +132,11 @@ export async function PUT(req: Request) {
       },
     });
 
+    revalidatePath("/", "layout");
+    revalidatePath("/brands");
+    revalidatePath("/shop");
+    revalidatePath("/sitemap.xml");
+
     return NextResponse.json(brand);
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
@@ -142,7 +153,57 @@ export async function DELETE(req: Request) {
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
 
-  await db.brand.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+  try {
+    // 1. Find all products associated with this brand
+    const products = await db.product.findMany({
+      where: { brandId: id },
+      select: { id: true, slug: true },
+    });
+
+    const productIds = products.map((p) => p.id);
+
+    if (productIds.length > 0) {
+      // Clean up all related child records first to satisfy foreign key constraints
+      await db.productImage.deleteMany({
+        where: { productId: { in: productIds } },
+      });
+      await db.fitment.deleteMany({
+        where: { productId: { in: productIds } },
+      });
+      await db.review.deleteMany({
+        where: { productId: { in: productIds } },
+      });
+      await db.wishlistItem.deleteMany({
+        where: { productId: { in: productIds } },
+      });
+      await db.orderItem.deleteMany({
+        where: { productId: { in: productIds } },
+      });
+
+      // Delete the products belonging to this brand
+      await db.product.deleteMany({
+        where: { id: { in: productIds } },
+      });
+    }
+
+    // 2. Delete the brand itself from database
+    await db.brand.delete({
+      where: { id },
+    });
+
+    // 3. Invalidate website cache across the entire application
+    revalidatePath("/", "layout");
+    revalidatePath("/brands");
+    revalidatePath("/shop");
+    revalidatePath("/sitemap.xml");
+
+    return NextResponse.json({
+      success: true,
+      message: `Brand and associated ${productIds.length} products permanently deleted from database and removed from website.`,
+    });
+  } catch (error) {
+    console.error("Brand delete error:", error);
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
 }
 

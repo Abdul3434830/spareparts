@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { RefreshCw, Edit2, Check, X, ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { RefreshCw, Edit2, Check, X, ChevronDown, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, Badge, Spinner } from "@/components/ui";
 
 interface SubcategoryItem {
@@ -104,6 +104,25 @@ export default function AdminCategoriesPage() {
         setNewSubName("");
         setAddingSubParentId(null);
         await fetchCategories();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string, name: string, isSub: boolean) => {
+    const confirmMsg = isSub
+      ? `Delete subcategory "${name}"? It will be removed from products and the website.`
+      : `Delete category "${name}"? WARNING: All products and subcategories in this category will be permanently deleted from the database and website!`;
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch(`/api/admin/categories?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        await fetchCategories();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to delete");
       }
     } catch (err) {
       console.error(err);
@@ -239,6 +258,14 @@ export default function AdminCategoriesPage() {
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCategory(cat.id, cat.name, false)}
+                            className="p-1.5 text-brand-zinc-500 hover:text-rose-400 rounded-md transition-colors"
+                            title="Delete Category"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       )}
                     </div>
@@ -304,9 +331,19 @@ export default function AdminCategoriesPage() {
                                   /{sub.slug}
                                 </div>
                               </div>
-                              <span className="text-[11px] text-brand-zinc-400">
-                                {sub._count?.subcategoryProducts || 0} parts
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] text-brand-zinc-400">
+                                  {sub._count?.subcategoryProducts || 0} parts
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteCategory(sub.id, sub.name, true)}
+                                  className="p-1 text-brand-zinc-500 hover:text-rose-400 rounded transition-colors"
+                                  title="Delete Subcategory"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>

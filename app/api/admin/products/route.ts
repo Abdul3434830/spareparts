@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
@@ -168,6 +169,12 @@ export async function POST(req: Request) {
         fitments: true,
       },
     });
+
+    revalidatePath("/", "layout");
+    revalidatePath("/shop");
+    revalidatePath("/brands");
+    revalidatePath(`/products/${product.slug}`);
+    revalidatePath("/sitemap.xml");
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

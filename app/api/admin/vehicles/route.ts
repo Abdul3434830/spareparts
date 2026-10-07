@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
@@ -101,15 +102,39 @@ export async function DELETE(req: Request) {
 
   if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
 
-  if (type === "make") {
-    await db.make.delete({ where: { id } });
-    return NextResponse.json({ success: true });
-  }
+  try {
+    if (type === "make") {
+      // 1. Clean up fitments associated with this make
+      await db.fitment.deleteMany({ where: { makeId: id } });
+      // 2. Find models for this make and clean their fitments
+      const models = await db.model.findMany({ where: { makeId: id }, select: { id: true } });
+      const modelIds = models.map((m) => m.id);
+      if (modelIds.length > 0) {
+        await db.fitment.deleteMany({ where: { modelId: { in: modelIds } } });
+        await db.model.deleteMany({ where: { id: { in: modelIds } } });
+      }
+      // 3. Delete the make itself
+      await db.make.delete({ where: { id } });
 
-  if (type === "model") {
-    await db.model.delete({ where: { id } });
-    return NextResponse.json({ success: true });
-  }
+      revalidatePath("/", "layout");
+      revalidatePath("/shop");
+      return NextResponse.json({ success: true });
+    }
 
-  return NextResponse.json({ error: "Invalid type" }, { status: 400 });
+    if (type === "model") {
+      // 1. Clean up fitments associated with this model
+      await db.fitment.deleteMany({ where: { modelId: id } });
+      // 2. Delete the model
+      await db.model.delete({ where: { id } });
+
+      revalidatePath("/", "layout");
+      revalidatePath("/shop");
+      return NextResponse.json({ success: true });
+    }
+
+    return NextResponse.json({ error: "Invalid type" }, { status: 400 });
+  } catch (error) {
+    console.error("Vehicle delete error:", error);
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
 }

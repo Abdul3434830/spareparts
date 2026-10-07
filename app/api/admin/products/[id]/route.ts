@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
@@ -136,6 +137,12 @@ export async function PUT(
       },
     });
 
+    revalidatePath("/", "layout");
+    revalidatePath("/shop");
+    revalidatePath("/brands");
+    revalidatePath(`/products/${updated.slug}`);
+    revalidatePath("/sitemap.xml");
+
     return NextResponse.json(updated);
   } catch (error) {
     console.error("Product update error:", error);
@@ -153,8 +160,42 @@ export async function DELETE(
   }
 
   try {
-    await db.product.delete({ where: { id: params.id } });
-    return NextResponse.json({ success: true });
+    const product = await db.product.findUnique({
+      where: { id: params.id },
+      select: {
+        id: true,
+        slug: true,
+        category: { select: { slug: true } },
+        subcategory: { select: { slug: true } },
+      },
+    });
+
+    if (product) {
+      // Clean up child dependencies safely
+      await db.productImage.deleteMany({ where: { productId: params.id } });
+      await db.fitment.deleteMany({ where: { productId: params.id } });
+      await db.review.deleteMany({ where: { productId: params.id } });
+      await db.wishlistItem.deleteMany({ where: { productId: params.id } });
+      await db.orderItem.deleteMany({ where: { productId: params.id } });
+
+      // Delete the product itself
+      await db.product.delete({ where: { id: params.id } });
+
+      // Invalidate website caches so product immediately disappears from website
+      revalidatePath("/", "layout");
+      revalidatePath("/shop");
+      revalidatePath("/brands");
+      revalidatePath(`/products/${product.slug}`);
+      if (product.category?.slug) {
+        revalidatePath(`/shop/${product.category.slug}`);
+      }
+      if (product.category?.slug && product.subcategory?.slug) {
+        revalidatePath(`/shop/${product.category.slug}/${product.subcategory.slug}`);
+      }
+      revalidatePath("/sitemap.xml");
+    }
+
+    return NextResponse.json({ success: true, message: "Product permanently deleted from database and removed from website." });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
