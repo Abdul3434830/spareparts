@@ -10,9 +10,16 @@ import { Spinner } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Search Spare Parts | CARS SPARE PARTS",
+  title: "Search Spare Parts | CARS SPARE PARTS Pakistan",
   description:
-    "Search genuine, OEM and aftermarket auto spare parts by SKU, part number, car make, or model. 100% fitment guarantee.",
+    "Search genuine, OEM and aftermarket auto spare parts by SKU, part number, car make, or model.",
+  alternates: {
+    canonical: "/search",
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
 export default async function SearchPage() {

@@ -26,16 +26,27 @@ export async function generateMetadata({ params }: ProductPageProps) {
   }
 
   const primaryImage = product.images.find((img) => img.isPrimary)?.url || product.images[0]?.url;
+  const canonicalUrl = `/products/${product.slug}`;
 
   return {
     title: `${product.name} (${product.partNumber}) | CARS SPARE PARTS`,
-    description: `Buy ${product.name} (SKU: ${product.partNumber}) by ${
+    description: `Buy genuine ${product.name} (SKU: ${product.partNumber}) by ${
       product.brand?.name || "Genuine Quality"
-    }. Guaranteed vehicle fitment, express courier delivery across Pakistan.`,
+    }. Direct OEM fit, warranty backed, express courier delivery across Pakistan.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      title: `${product.name} | CARS SPARE PARTS`,
-      description: `SKU: ${product.partNumber}. Genuine, OEM and high performance replacement parts.`,
-      images: primaryImage ? [{ url: primaryImage }] : [],
+      title: `${product.name} (${product.partNumber}) | CARS SPARE PARTS`,
+      description: `Buy ${product.name} online in Pakistan. Guaranteed genuine quality and express nationwide delivery.`,
+      url: canonicalUrl,
+      images: primaryImage ? [{ url: primaryImage, alt: product.name }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} (${product.partNumber}) | CARS SPARE PARTS`,
+      description: `Buy genuine ${product.name} online. Express courier delivery across Pakistan.`,
+      images: primaryImage ? [primaryImage] : [],
     },
   };
 }
@@ -83,27 +94,91 @@ export default async function ProductPage({ params }: ProductPageProps) {
     take: 4,
   });
 
-  // JSON-LD structured data for Google Rich Snippets
+  const ratingCount = product.reviews.length;
+  const avgRating = ratingCount > 0
+    ? (product.reviews.reduce((acc, r) => acc + r.rating, 0) / ratingCount).toFixed(1)
+    : "5.0";
+
+  // Breadcrumb Schema
+  const breadcrumbElements = [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://carsspareparts.com",
+    },
+  ];
+
+  if (product.category) {
+    breadcrumbElements.push({
+      "@type": "ListItem",
+      position: 2,
+      name: product.category.name,
+      item: `https://carsspareparts.com/shop/${product.category.slug}`,
+    });
+  }
+
+  if (product.subcategory && product.category) {
+    breadcrumbElements.push({
+      "@type": "ListItem",
+      position: 3,
+      name: product.subcategory.name,
+      item: `https://carsspareparts.com/shop/${product.category.slug}/${product.subcategory.slug}`,
+    });
+  }
+
+  breadcrumbElements.push({
+    "@type": "ListItem",
+    position: breadcrumbElements.length + 1,
+    name: product.name,
+    item: `https://carsspareparts.com/products/${product.slug}`,
+  });
+
+  // JSON-LD structured data graph for Google Rich Snippets & AI Search
   const jsonLd = {
     "@context": "https://schema.org/",
-    "@type": "Product",
-    name: product.name,
-    image: product.images.map((img) => img.url),
-    description: `Auto spare part SKU ${product.partNumber} by ${product.brand?.name || "CARS Quality"}`,
-    sku: product.partNumber,
-    mpn: product.partNumber,
-    brand: {
-      "@type": "Brand",
-      name: product.brand?.name || "CARS SPARE PARTS",
-    },
-    offers: {
-      "@type": "Offer",
-      url: `https://carsspareparts.com/products/${product.slug}`,
-      priceCurrency: "PKR",
-      price: product.salePrice ?? product.price,
-      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
-    },
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumbElements,
+      },
+      {
+        "@type": "Product",
+        "@id": `https://carsspareparts.com/products/${product.slug}#product`,
+        name: product.name,
+        image: product.images.map((img) => img.url),
+        description: `Buy genuine ${product.name} (SKU: ${product.partNumber}) by ${product.brand?.name || "CARS Quality"}. Guaranteed quality and nationwide delivery across Pakistan.`,
+        sku: product.partNumber,
+        mpn: product.partNumber,
+        category: product.category?.name,
+        brand: {
+          "@type": "Brand",
+          name: product.brand?.name || "CARS SPARE PARTS",
+        },
+        offers: {
+          "@type": "Offer",
+          url: `https://carsspareparts.com/products/${product.slug}`,
+          priceCurrency: "PKR",
+          price: product.salePrice ?? product.price,
+          priceValidUntil: "2027-12-31",
+          availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          itemCondition: "https://schema.org/NewCondition",
+          seller: {
+            "@type": "Organization",
+            name: "CARS SPARE PARTS",
+          },
+        },
+        ...(ratingCount > 0
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: avgRating,
+                reviewCount: ratingCount,
+              },
+            }
+          : {}),
+      },
+    ],
   };
 
   return (

@@ -162,7 +162,7 @@ export function ProductDetailView({ product }: ProductDetailProps) {
             {currentImage ? (
               <Image
                 src={currentImage}
-                alt={product.name}
+                alt={images[selectedImageIndex]?.alt || `${product.name} - ${product.brand?.name || "Auto Part"} (SKU: ${product.partNumber})`}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"

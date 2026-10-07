@@ -21,6 +21,7 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Button } from "@/components/ui";
+import { HomeFAQ } from "@/components/home/HomeFAQ";
 
 export const dynamic = "force-dynamic";
 
@@ -482,6 +483,9 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+        {/* AUTHORITATIVE FAQ SECTION (AEO/GEO & RICH SNIPPETS) */}
+        <HomeFAQ />
 
         {/* HARD-TO-FIND SOURCING BANNER */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -23,9 +23,18 @@ import { PAYMENT_CONFIG } from "@/lib/payment-methods";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "About Us | CARS SPARE PARTS - The Right Part. The Right Fit.",
+  title: "About Us | CARS SPARE PARTS - Genuine OEM Auto Parts Pakistan",
   description:
-    "Learn about CARS SPARE PARTS. Pakistan's trusted automotive parts platform providing genuine OEM components, 100% chassis-verified fitment guarantee, and nationwide delivery.",
+    "Learn about CARS SPARE PARTS. Pakistan's trusted automotive parts platform providing genuine OEM components, quality guarantee, and nationwide delivery.",
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    title: "About Us | CARS SPARE PARTS - Genuine OEM Auto Parts Pakistan",
+    description:
+      "Pakistan's premier automotive spare parts store providing genuine OEM & certified aftermarket components.",
+    url: "/about",
+  },
 };
 
 export default async function AboutPage() {
@@ -40,8 +49,28 @@ export default async function AboutPage() {
     orderBy: { sortOrder: "asc" },
   });
 
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: "About CARS SPARE PARTS",
+    url: "https://carsspareparts.com/about",
+    description: "Learn about CARS SPARE PARTS, mission, quality standards, and genuine auto components distribution across Pakistan.",
+    mainEntity: {
+      "@type": "AutoPartsStore",
+      name: "CARS SPARE PARTS",
+      url: "https://carsspareparts.com",
+      telephone: "+92-318-8303434",
+      email: "info@carsspareparts.com",
+      areaServed: "Pakistan",
+    },
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-brand-black text-brand-white selection:bg-brand-amber selection:text-brand-black">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }}
+      />
       <Header categories={categories} />
 
       <main className="flex-1 space-y-16 sm:space-y-24 pb-20 md:pb-16">

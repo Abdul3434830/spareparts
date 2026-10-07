@@ -8,9 +8,18 @@ import { ShopCatalog } from "@/components/shop/ShopCatalog";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Auto Spare Parts Catalog | CARS SPARE PARTS",
+  title: "Auto Spare Parts Catalog | CARS SPARE PARTS Pakistan",
   description:
     "Explore our complete inventory of genuine OEM and high performance replacement auto parts. Guaranteed vehicle fitment and express nationwide delivery.",
+  alternates: {
+    canonical: "/shop",
+  },
+  openGraph: {
+    title: "Auto Spare Parts Catalog | CARS SPARE PARTS Pakistan",
+    description:
+      "Explore genuine OEM and certified aftermarket replacement auto parts. Express courier delivery across Pakistan.",
+    url: "/shop",
+  },
 };
 
 interface ShopPageProps {

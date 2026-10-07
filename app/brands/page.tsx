@@ -10,9 +10,18 @@ import { Tag, ArrowRight, ShieldCheck, Globe } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Auto Component Manufacturers & Brands | CARS SPARE PARTS",
+  title: "Auto Component Manufacturers & Brands | CARS SPARE PARTS Pakistan",
   description:
-    "Explore genuine OEM and aftermarket brands including Bosch, Denso, Brembo, NGK, Aisin, KYB, and more. 100% authentic spare parts with guaranteed fitment.",
+    "Explore genuine OEM and aftermarket brands including Bosch, Denso, Brembo, NGK, Aisin, KYB, and more. 100% authentic spare parts with guaranteed quality.",
+  alternates: {
+    canonical: "/brands",
+  },
+  openGraph: {
+    title: "Auto Component Manufacturers & Brands | CARS SPARE PARTS Pakistan",
+    description:
+      "Explore genuine OEM and certified aftermarket automotive brands. Nationwide courier delivery across Pakistan.",
+    url: "/brands",
+  },
 };
 
 export default async function BrandsPage() {
@@ -32,8 +41,32 @@ export default async function BrandsPage() {
     }),
   ]);
 
+  const brandsSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Automotive Parts Brands & Manufacturers",
+    url: "https://carsspareparts.com/brands",
+    description: "Explore genuine OEM and tier-1 aftermarket auto parts manufacturers.",
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: brands.map((b, idx) => ({
+        "@type": "ListItem",
+        position: idx + 1,
+        item: {
+          "@type": "Brand",
+          name: b.name,
+          url: `https://carsspareparts.com/shop?brand=${b.slug}`,
+        },
+      })),
+    },
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-brand-black text-brand-white selection:bg-brand-amber selection:text-brand-black">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(brandsSchema) }}
+      />
       <Header categories={categories} />
 
       <main className="flex-1 w-full pb-20 md:pb-16">
